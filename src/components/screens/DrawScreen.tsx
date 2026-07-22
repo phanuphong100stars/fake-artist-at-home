@@ -1,0 +1,181 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
+import { Undo2, Trash2, Check, Timer as TimerIcon, Flag } from "lucide-react";
+import { Button } from "@/components/common/Button";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { DrawCanvas, type DrawCanvasHandle } from "@/components/game/DrawCanvas";
+import { PlayerLegend } from "@/components/game/PlayerLegend";
+import { useGame } from "@/stores/gameStore";
+import { useSettings } from "@/stores/settingsStore";
+import { colorVar } from "@/lib/colors";
+import { cn } from "@/lib/utils";
+
+const BRUSHES = [4, 8, 14];
+
+export function DrawScreen() {
+  const players = useGame((s) => s.players);
+  const order = useGame((s) => s.order);
+  const drawIndex = useGame((s) => s.drawIndex);
+  const committed = useGame((s) => s.strokes);
+  const commitTurn = useGame((s) => s.commitTurn);
+  const s = useSettings();
+
+  const canvasRef = useRef<DrawCanvasHandle>(null);
+  const [count, setCount] = useState(0);
+  const [confirmEnd, setConfirmEnd] = useState(false);
+
+  const current = players.find((p) => p.id === order[drawIndex]);
+
+  useEffect(() => setCount(0), [drawIndex]);
+
+  if (!current) return null;
+  const isLast = drawIndex === order.length - 1;
+
+  const commit = () => commitTurn(canvasRef.current?.getStrokes() ?? []);
+  const done = () => (isLast ? setConfirmEnd(true) : commit());
+
+  return (
+    <main className="mx-auto flex h-dvh w-full max-w-md flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      {/* turn header */}
+      <motion.header
+        key={drawIndex}
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-3 pb-2"
+      >
+        <span className="h-5 w-5 rounded-full ring-2 ring-white/60" style={{ backgroundColor: colorVar(current.color) }} />
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-muted">ส่งเครื่องให้ · ตาที่ {drawIndex + 1}/{order.length}</p>
+          <h1 className="truncate text-lg font-bold leading-tight">{current.name}</h1>
+        </div>
+        {s.timerEnabled && <TurnTimer seconds={s.timerSeconds} resetKey={drawIndex} />}
+      </motion.header>
+
+      {/* turn progress */}
+      <div className="mb-2 flex gap-1">
+        {order.map((id, i) => {
+          const p = players.find((pl) => pl.id === id)!;
+          return (
+            <span
+              key={id}
+              className="h-1.5 flex-1 rounded-full"
+              style={{ backgroundColor: i <= drawIndex ? colorVar(p.color) : "var(--border-strong)", opacity: i < drawIndex ? 0.5 : 1 }}
+            />
+          );
+        })}
+      </div>
+
+      {/* who's who */}
+      <div className="mb-2 max-h-16 overflow-y-auto">
+        <PlayerLegend players={players} activeId={current.id} />
+      </div>
+
+      {/* canvas */}
+      <div className="min-h-0 flex-1">
+        <DrawCanvas
+          key={drawIndex}
+          ref={canvasRef}
+          committed={committed}
+          playerId={current.id}
+          color={current.color}
+          brushSize={s.brushSize}
+          singleStroke={s.singleStroke}
+          paper={s.paper}
+          onChange={setCount}
+        />
+      </div>
+
+      {/* controls */}
+      <div className="flex items-center gap-2 pt-3">
+        {/* brush sizes */}
+        <div className="flex items-center gap-1.5 rounded-full bg-elevated p-1.5">
+          {BRUSHES.map((b) => (
+            <button
+              key={b}
+              onClick={() => s.set("brushSize", b)}
+              aria-label={`ขนาดพู่กัน ${b}`}
+              aria-pressed={s.brushSize === b}
+              className={cn(
+                "grid h-9 w-9 place-items-center rounded-full transition active:scale-90",
+                s.brushSize === b && "bg-surface shadow-card",
+              )}
+            >
+              <span className="rounded-full bg-foreground" style={{ width: b + 2, height: b + 2 }} />
+            </button>
+          ))}
+        </div>
+
+        <div className="ml-auto flex gap-1.5">
+          {s.allowUndo && (
+            <button
+              onClick={() => canvasRef.current?.undo()}
+              disabled={count === 0}
+              aria-label="ย้อนกลับ"
+              className="grid h-11 w-11 place-items-center rounded-full bg-elevated text-foreground disabled:opacity-30 active:scale-90"
+            >
+              <Undo2 className="h-5 w-5" />
+            </button>
+          )}
+          {s.allowClear && !s.singleStroke && (
+            <button
+              onClick={() => canvasRef.current?.clear()}
+              disabled={count === 0}
+              aria-label="ล้าง"
+              className="grid h-11 w-11 place-items-center rounded-full bg-elevated text-foreground disabled:opacity-30 active:scale-90"
+            >
+              <Trash2 className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <Button
+        size="lg"
+        variant={isLast ? "danger" : "primary"}
+        onClick={done}
+        disabled={count === 0}
+        className="mt-3 w-full"
+      >
+        {isLast ? <Flag className="h-5 w-5" /> : <Check className="h-5 w-5" />}
+        {isLast ? "จบเกม — เฉลย" : "เสร็จ ส่งต่อ"}
+      </Button>
+
+      <ConfirmDialog
+        open={confirmEnd}
+        title="จบเกมและเฉลย?"
+        description="ทุกคนวาดครบแล้ว พร้อมเปิดเผยว่าใครคือตัวปลอม"
+        confirmLabel="เฉลยเลย"
+        cancelLabel="ยังก่อน"
+        onConfirm={() => {
+          setConfirmEnd(false);
+          commit();
+        }}
+        onCancel={() => setConfirmEnd(false)}
+      />
+    </main>
+  );
+}
+
+function TurnTimer({ seconds, resetKey }: { seconds: number; resetKey: number }) {
+  const [left, setLeft] = useState(seconds);
+  useEffect(() => {
+    setLeft(seconds);
+    const id = setInterval(() => setLeft((v) => Math.max(0, v - 1)), 1000);
+    return () => clearInterval(id);
+  }, [seconds, resetKey]);
+
+  const over = left === 0;
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold tabular-nums",
+        over ? "bg-danger/15 text-danger" : "bg-elevated text-foreground",
+      )}
+    >
+      <TimerIcon className="h-4 w-4" />
+      {over ? "หมดเวลา" : `${left}s`}
+    </div>
+  );
+}

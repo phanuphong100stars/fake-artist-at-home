@@ -1,0 +1,24 @@
+import { chromium } from "@playwright/test";
+const out = process.argv[2];
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+const page = await ctx.newPage();
+const scribble = async () => {
+  const cb = await page.locator("canvas").boundingBox();
+  const cx=cb.x+cb.width/2, cy=cb.y+cb.height/2;
+  await page.mouse.move(cx-70,cy); await page.mouse.down();
+  for(let a=0;a<=16;a++){const t=a/16;await page.mouse.move(cx-70+t*140,cy+Math.sin(t*6)*40);await page.waitForTimeout(8);}
+  await page.mouse.up(); await page.waitForTimeout(150);
+};
+await page.goto("http://localhost:3000",{waitUntil:"networkidle"});
+await page.getByText("เริ่มเล่น").click(); await page.waitForTimeout(250);
+await page.getByText("ถัดไป").click(); await page.waitForTimeout(250);
+await page.getByText("สุ่มบทบาท").click(); await page.waitForTimeout(400);
+for(let i=0;i<3;i++){const c=page.getByText(/แตะค้าง/);const bx=await c.boundingBox();await page.mouse.move(bx.x+bx.width/2,bx.y+bx.height/2);await page.mouse.down();await page.waitForTimeout(250);await page.mouse.up();await page.waitForTimeout(200);await page.getByText(/ส่งต่อ|เริ่มวาด/).click();await page.waitForTimeout(300);}
+await scribble(); await page.getByText("เสร็จ ส่งต่อ").click(); await page.waitForTimeout(250);
+await scribble(); await page.getByText("เสร็จ ส่งต่อ").click(); await page.waitForTimeout(250);
+await scribble(); await page.getByText("จบเกม").click(); await page.waitForTimeout(300);
+await page.getByText("เฉลยเลย").click();
+await page.waitForTimeout(2500);
+await page.screenshot({ path: `${out}/reveal2.png` });
+await b.close();
