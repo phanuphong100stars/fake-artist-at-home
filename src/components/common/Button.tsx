@@ -1,7 +1,7 @@
 "use client";
 
-import { forwardRef } from "react";
-import { motion, type HTMLMotionProps } from "motion/react";
+import { forwardRef, useState } from "react";
+import { AnimatePresence, motion, type HTMLMotionProps } from "motion/react";
 import { cn } from "@/lib/utils";
 import { haptic } from "@/lib/haptics";
 import { play } from "@/lib/sound";
@@ -28,26 +28,62 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
   size?: Size;
 }
 
+interface Ripple {
+  key: number;
+  x: number;
+  y: number;
+  size: number;
+}
+let rippleSeq = 0;
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", onClick, ...props }, ref) => (
-    <motion.button
-      ref={ref}
-      whileTap={{ scale: 0.96 }}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      onClick={(e) => {
-        haptic("light");
-        play("tap");
-        onClick?.(e);
-      }}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 font-semibold no-select",
-        "transition-[filter,background-color] disabled:opacity-50 disabled:pointer-events-none",
-        variants[variant],
-        sizes[size],
-        className,
-      )}
-      {...props}
-    />
-  ),
+  ({ className, variant = "primary", size = "md", onClick, onPointerDown, children, ...props }, ref) => {
+    const [ripples, setRipples] = useState<Ripple[]>([]);
+
+    return (
+      <motion.button
+        ref={ref}
+        whileTap={{ scale: 0.96 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        onPointerDown={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height) * 1.6;
+          const key = rippleSeq++;
+          setRipples((r) => [...r, { key, x: e.clientX - rect.left, y: e.clientY - rect.top, size }]);
+          setTimeout(() => setRipples((r) => r.filter((rp) => rp.key !== key)), 500);
+          onPointerDown?.(e);
+        }}
+        onClick={(e) => {
+          haptic("light");
+          play("tap");
+          onClick?.(e);
+        }}
+        className={cn(
+          "relative inline-flex items-center justify-center gap-2 overflow-hidden font-semibold no-select",
+          "transition-[filter,background-color] disabled:pointer-events-none disabled:opacity-50",
+          variants[variant],
+          sizes[size],
+          className,
+        )}
+        {...props}
+      >
+        <AnimatePresence>
+          {ripples.map((r) => (
+            <motion.span
+              key={r.key}
+              aria-hidden
+              initial={{ opacity: 0.35, scale: 0 }}
+              animate={{ opacity: 0, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="pointer-events-none absolute rounded-full bg-current"
+              style={{ left: r.x - r.size / 2, top: r.y - r.size / 2, width: r.size, height: r.size }}
+            />
+          ))}
+        </AnimatePresence>
+        {children as React.ReactNode}
+      </motion.button>
+    );
+  },
 );
 Button.displayName = "Button";

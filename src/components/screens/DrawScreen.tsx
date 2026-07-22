@@ -28,8 +28,6 @@ export function DrawScreen() {
 
   const current = players.find((p) => p.id === order[drawIndex]);
 
-  useEffect(() => setCount(0), [drawIndex]);
-
   if (!current) return null;
   const isLast = drawIndex === order.length - 1;
 
@@ -50,7 +48,7 @@ export function DrawScreen() {
           <p className="text-xs text-muted">ส่งเครื่องให้ · ตาที่ {drawIndex + 1}/{order.length}</p>
           <h1 className="truncate text-lg font-bold leading-tight">{current.name}</h1>
         </div>
-        {s.timerEnabled && <TurnTimer seconds={s.timerSeconds} resetKey={drawIndex} />}
+        {s.timerEnabled && <TurnTimer key={drawIndex} seconds={s.timerSeconds} />}
       </motion.header>
 
       {/* turn progress */}
@@ -158,13 +156,12 @@ export function DrawScreen() {
   );
 }
 
-function TurnTimer({ seconds, resetKey }: { seconds: number; resetKey: number }) {
+function TurnTimer({ seconds }: { seconds: number }) {
   const [left, setLeft] = useState(seconds);
   useEffect(() => {
-    setLeft(seconds);
     const id = setInterval(() => setLeft((v) => Math.max(0, v - 1)), 1000);
     return () => clearInterval(id);
-  }, [seconds, resetKey]);
+  }, []);
 
   const over = left === 0;
   return (

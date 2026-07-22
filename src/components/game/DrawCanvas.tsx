@@ -77,6 +77,12 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     render();
   }, [render]);
 
+  // reset the parent's stroke count when this canvas (re)mounts for a new turn
+  useEffect(() => {
+    onChange?.(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useImperativeHandle(ref, () => ({
     undo: () => {
       active.current.pop();

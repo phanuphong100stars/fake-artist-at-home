@@ -1,0 +1,11 @@
+import { chromium } from "@playwright/test";
+const out = process.argv[2];
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: "dark" });
+const page = await ctx.newPage();
+await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
+await page.waitForTimeout(900);
+await page.screenshot({ path: `${out}/home-dark.png` });
+await page.getByText("เริ่มเล่น").click(); await page.waitForTimeout(500);
+await page.screenshot({ path: `${out}/setup-dark.png` });
+await b.close();

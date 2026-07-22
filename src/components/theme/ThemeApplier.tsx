@@ -5,7 +5,7 @@ import { useSettings } from "@/stores/settingsStore";
 
 /** Syncs settings to <html> data-attributes that globals.css reacts to. */
 export function ThemeApplier() {
-  const { theme, largeFont, reduceMotion, highContrast } = useSettings();
+  const { theme, largeFont, reduceMotion, highContrast, colorBlind } = useSettings();
 
   useEffect(() => {
     const el = document.documentElement;
@@ -15,7 +15,8 @@ export function ThemeApplier() {
     el.toggleAttribute("data-large-font", largeFont);
     el.toggleAttribute("data-reduce-motion", reduceMotion);
     el.toggleAttribute("data-high-contrast", highContrast);
-  }, [theme, largeFont, reduceMotion, highContrast]);
+    el.toggleAttribute("data-color-blind", colorBlind);
+  }, [theme, largeFont, reduceMotion, highContrast, colorBlind]);
 
   return null;
 }
