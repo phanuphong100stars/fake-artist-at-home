@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import type { Player, PlayerColor, Stroke } from "@/domain/types";
 import { assignRoles, type RoleDeal } from "@/domain/role";
 import { turnOrder as makeTurnOrder } from "@/domain/turn";
@@ -76,7 +77,9 @@ const seedPlayers = (): Player[] => [
   { id: "seed-3", name: "ผู้เล่น 3", color: "p9" },
 ];
 
-export const useGame = create<GameState>((set, get) => ({
+export const useGame = create<GameState>()(
+  persist(
+    (set, get) => ({
   phase: "home",
   players: seedPlayers(),
   deal: null,
@@ -175,6 +178,24 @@ export const useGame = create<GameState>((set, get) => ({
     }),
 
   resetPlayers: () => set({ players: seedPlayers() }),
-}));
+    }),
+    {
+      name: "fake-artist:game",
+      version: 1,
+      // persist the in-progress game so it survives a refresh / app close
+      partialize: (s) => ({
+        phase: s.phase,
+        players: s.players,
+        deal: s.deal,
+        order: s.order,
+        revealIndex: s.revealIndex,
+        drawIndex: s.drawIndex,
+        strokes: s.strokes,
+        startedAt: s.startedAt,
+        winner: s.winner,
+      }),
+    },
+  ),
+);
 
 export { ALL_COLORS };
