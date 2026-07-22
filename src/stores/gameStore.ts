@@ -66,6 +66,7 @@ interface GameState {
   renamePlayer: (id: string, name: string) => void;
   setColor: (id: string, color: PlayerColor) => void;
   randomizeColors: () => void;
+  reorderPlayers: (players: Player[]) => void;
   resetPlayers: () => void;
 
   startGame: () => void;
@@ -199,6 +200,8 @@ export const useGame = create<GameState>()(
         }),
       };
     }),
+
+  reorderPlayers: (players) => set({ players }),
 
   resetPlayers: () => set({ players: seedPlayers() }),
     }),

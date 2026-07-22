@@ -16,6 +16,7 @@ await page.getByText("เริ่มเล่น").click(); await page.waitForT
 await page.getByText("ถัดไป").click(); await page.waitForTimeout(300);
 await page.getByText("สุ่มบทบาท").click(); await page.waitForTimeout(500);
 for (let i=0;i<3;i++){
+  await page.getByText(/ฉันคือ/).click(); await page.waitForTimeout(250);
   const cover = page.getByText(/แตะค้าง/);
   const box = await cover.boundingBox();
   await page.mouse.move(box.x+box.width/2, box.y+box.height/2);

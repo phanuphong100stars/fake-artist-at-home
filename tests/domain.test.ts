@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Cluster, Player, Votes } from "@/domain/types";
 import { assignRoles, clampFakerCount } from "@/domain/role";
+import { turnOrder } from "@/domain/turn";
 import { pickCluster, assignWords, ANTI_REPEAT_WINDOW } from "@/domain/word";
 import { resolveWin } from "@/domain/scoring";
 
@@ -100,6 +101,22 @@ describe("pickCluster anti-repeat", () => {
     ];
     for (let i = 0; i < 10; i++) {
       expect(pickCluster(mixed, [], "easy", seeded(i)).id).toBe("e");
+    }
+  });
+});
+
+describe("turnOrder", () => {
+  it("is a rotation of player order (random start, then sequential)", () => {
+    const ps = players(5);
+    for (let seed = 0; seed < 20; seed++) {
+      const order = turnOrder(ps, seeded(seed));
+      expect(order.length).toBe(5);
+      expect(new Set(order).size).toBe(5); // all players, once
+      // original indices must be consecutive mod n
+      const idx = order.map((id) => ps.findIndex((p) => p.id === id));
+      for (let i = 1; i < idx.length; i++) {
+        expect((idx[i - 1] + 1) % 5).toBe(idx[i]);
+      }
     }
   });
 });

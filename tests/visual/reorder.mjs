@@ -1,0 +1,23 @@
+import { chromium } from "@playwright/test";
+const out = process.argv[2];
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+const page = await ctx.newPage();
+await page.goto("http://localhost:3000",{waitUntil:"networkidle"});
+await page.getByText("เริ่มเล่น").click(); await page.waitForTimeout(500);
+await page.screenshot({ path: `${out}/setup-grip.png` });
+const before = await page.locator('input[aria-label^="ชื่อผู้เล่น"]').evaluateAll(els=>els.map(e=>e.value));
+// drag first grip handle down past 2nd row
+const grips = page.getByLabel("ลากเพื่อสลับลำดับ");
+const g0 = await grips.nth(0).boundingBox();
+await page.mouse.move(g0.x+g0.width/2, g0.y+g0.height/2);
+await page.mouse.down();
+await page.mouse.move(g0.x+g0.width/2, g0.y+140, {steps:12});
+await page.waitForTimeout(200);
+await page.mouse.up();
+await page.waitForTimeout(400);
+const after = await page.locator('input[aria-label^="ชื่อผู้เล่น"]').evaluateAll(els=>els.map(e=>e.value));
+console.log("before:", before.join(","));
+console.log("after :", after.join(","));
+console.log("reordered:", JSON.stringify(before)!==JSON.stringify(after));
+await b.close();

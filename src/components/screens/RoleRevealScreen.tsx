@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Eye, Palette, VenetianMask, ArrowRight } from "lucide-react";
+import { Eye, Palette, VenetianMask, ArrowRight, Hand } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { useGame } from "@/stores/gameStore";
 import { colorVar } from "@/lib/colors";
@@ -68,6 +68,7 @@ function PlayerReveal({
   isLast: boolean;
   onNext: () => void;
 }) {
+  const [stage, setStage] = useState<"handoff" | "peek">("handoff");
   const [peeking, setPeeking] = useState(false);
   const [seen, setSeen] = useState(false);
   const isFaker = role === "faker";
@@ -78,15 +79,43 @@ function PlayerReveal({
     setPeeking(false);
   };
 
+  // Gated handoff: shows only the name (no peekable surface) so whoever is
+  // passing the phone cannot peek the next player's role. The receiver taps
+  // to continue, then gets the hold-to-reveal surface.
+  if (stage === "handoff") {
+    return (
+      <div className="z-10 flex flex-1 flex-col items-center justify-center gap-8 px-2 text-center">
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 22 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="grid h-16 w-16 place-items-center rounded-full bg-elevated">
+            <Hand className="h-8 w-8 text-muted" />
+          </div>
+          <p className="text-muted">ส่งเครื่องให้</p>
+          <div className="flex items-center justify-center gap-3">
+            <span className="h-5 w-5 rounded-full" style={{ backgroundColor: colorVar(color as never) }} />
+            <h1 className="text-4xl font-extrabold">{name}</h1>
+          </div>
+          <p className="max-w-[16rem] text-sm text-muted">
+            คนอื่นอย่าเพิ่งดู — ให้ {name} ถือเครื่องแล้วกดปุ่มด้านล่าง
+          </p>
+        </motion.div>
+        <Button size="lg" onClick={() => setStage("peek")}>
+          ฉันคือ {name} <ArrowRight className="h-5 w-5" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="z-10 flex flex-1 flex-col items-center justify-center gap-8 text-center">
-      {/* pass header */}
-      <div>
-        <p className="text-muted">ส่งเครื่องให้</p>
-        <div className="mt-2 flex items-center justify-center gap-2.5">
-          <span className="h-4 w-4 rounded-full" style={{ backgroundColor: colorVar(color as never) }} />
-          <h1 className="text-3xl font-extrabold">{name}</h1>
-        </div>
+      {/* whose turn (small — handoff already gated the pass) */}
+      <div className="flex items-center justify-center gap-2.5">
+        <span className="h-4 w-4 rounded-full" style={{ backgroundColor: colorVar(color as never) }} />
+        <h1 className="text-2xl font-extrabold">{name}</h1>
       </div>
 
       {/* the peek surface — handlers live here so they survive cover→card swap */}
