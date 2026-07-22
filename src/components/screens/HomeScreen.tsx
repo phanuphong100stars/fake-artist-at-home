@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Palette, Settings, Play, HelpCircle } from "lucide-react";
+import { Settings, Play, HelpCircle } from "lucide-react";
 import { Button } from "@/components/common/Button";
+import { AppLogo } from "@/components/common/AppLogo";
 
 interface HomeScreenProps {
   onStart: () => void;
@@ -42,9 +43,9 @@ export function HomeScreen({ onStart, onHowTo, onSettings }: HomeScreenProps) {
           initial={{ scale: 0, rotate: -20 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-          className="mb-6 grid h-24 w-24 place-items-center rounded-2xl bg-brand shadow-float"
+          className="mb-6"
         >
-          <Palette className="h-12 w-12 text-brand-fg" strokeWidth={2.2} />
+          <AppLogo className="h-24 w-24 rounded-2xl shadow-float" />
         </motion.div>
 
         <motion.h1
@@ -53,7 +54,7 @@ export function HomeScreen({ onStart, onHowTo, onSettings }: HomeScreenProps) {
           transition={{ delay: 0.25, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
           className="text-4xl font-extrabold tracking-tight"
         >
-          จิตรกรตัวปลอม
+          ศิลปินจอมปลอม
         </motion.h1>
 
         <motion.p

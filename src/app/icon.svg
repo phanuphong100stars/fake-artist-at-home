@@ -1,10 +1,20 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="114" fill="#f0553d"/>
-  <g transform="translate(106,106) scale(12.5)" fill="none" stroke="#ffffff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-    <circle cx="13.5" cy="6.5" r=".9" fill="#ffffff" stroke="none"/>
-    <circle cx="17.5" cy="10.5" r=".9" fill="#ffffff" stroke="none"/>
-    <circle cx="8.5" cy="7.5" r=".9" fill="#ffffff" stroke="none"/>
-    <circle cx="6.5" cy="12.5" r=".9" fill="#ffffff" stroke="none"/>
-  </g>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7a5c"/>
+      <stop offset="1" stop-color="#e83c26"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="118" fill="url(#bg)"/>
+  <!-- mask band (จอมปลอม) -->
+  <path d="M150 196 Q256 156 362 196 L362 214 Q256 178 150 214 Z" fill="#ffffff" opacity="0.9"/>
+  <!-- eyes -->
+  <circle cx="196" cy="232" r="24" fill="#ffffff"/>
+  <circle cx="316" cy="232" r="24" fill="#ffffff"/>
+  <!-- painterly smile stroke -->
+  <path d="M156 300 Q256 392 356 300" fill="none" stroke="#ffffff" stroke-width="42" stroke-linecap="round"/>
+  <!-- paint flecks (ศิลปิน) -->
+  <circle cx="188" cy="372" r="12" fill="#ffd166"/>
+  <circle cx="256" cy="392" r="12" fill="#8be0c0"/>
+  <circle cx="324" cy="372" r="12" fill="#8ab6ff"/>
 </svg>

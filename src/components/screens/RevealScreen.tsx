@@ -120,7 +120,7 @@ export function RevealScreen() {
               <p className="mb-2 text-center text-sm font-semibold text-muted">ใครชนะรอบนี้?</p>
               <div className="grid grid-cols-2 gap-3">
                 <Button size="lg" variant="secondary" onClick={() => pick("normals")}>
-                  <Palette className="h-5 w-5 text-brand" /> จิตรกร
+                  <Palette className="h-5 w-5 text-brand" /> ศิลปิน
                 </Button>
                 <Button size="lg" variant="secondary" onClick={() => pick("fakers")}>
                   <VenetianMask className="h-5 w-5" /> ตัวปลอม
@@ -136,7 +136,7 @@ export function RevealScreen() {
                 className="text-center text-2xl font-extrabold"
                 style={{ color: winner === "normals" ? "var(--brand)" : "var(--foreground)" }}
               >
-                {winner === "normals" ? "🎨 จิตรกรชนะ!" : "🎭 ตัวปลอมชนะ!"}
+                {winner === "normals" ? "🎨 ศิลปินชนะ!" : "🎭 ตัวปลอมชนะ!"}
               </motion.p>
               <div className="grid grid-cols-2 gap-2">
                 <Button size="lg" onClick={playAgain} className="col-span-2 w-full">

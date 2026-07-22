@@ -32,7 +32,7 @@ export function GameSettingScreen({ onBack }: Props) {
 
       <div className="flex-1 divide-y divide-border overflow-y-auto py-2">
         {/* faker count */}
-        <SettingRow title="จำนวนตัวปลอม" desc={`สูงสุด ${maxFaker} คน (เหลือจิตรกรอย่างน้อย 2)`}>
+        <SettingRow title="จำนวนตัวปลอม" desc={`สูงสุด ${maxFaker} คน (เหลือศิลปินอย่างน้อย 2)`}>
           <div className="flex items-center gap-3">
             <button
               onClick={() => s.set("fakerCount", Math.max(1, fakerCount - 1))}

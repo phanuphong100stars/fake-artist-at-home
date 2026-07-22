@@ -25,7 +25,7 @@ export function StatisticsScreen() {
     { icon: Gamepad2, label: "จำนวนเกม", value: stats.games },
     { icon: Brush, label: "เส้นที่วาด", value: stats.strokes },
     { icon: VenetianMask, label: "ตัวปลอมทั้งหมด", value: stats.fakerAppearances },
-    { icon: Palette, label: "จิตรกรชนะ", value: stats.normalsWins },
+    { icon: Palette, label: "ศิลปินชนะ", value: stats.normalsWins },
     { icon: Trophy, label: "ตัวปลอมชนะ", value: stats.fakersWins },
     { icon: Clock, label: "เวลาเล่นรวม", value: fmtTime(stats.playTimeMs) },
   ];

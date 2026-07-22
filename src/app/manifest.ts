@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "จิตรกรตัวปลอม — Fake Artist",
-    short_name: "จิตรกรตัวปลอม",
+    name: "ศิลปินจอมปลอม — Fake Artist",
+    short_name: "ศิลปินจอมปลอม",
     description: "เกมปาร์ตี้วาดรูปหาตัวปลอม เล่นด้วยมือถือเครื่องเดียว",
     start_url: "/",
     display: "standalone",

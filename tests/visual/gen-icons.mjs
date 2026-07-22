@@ -1,18 +1,23 @@
 import { chromium } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 
-// normal: rounded square, glyph ~300/512. maskable: full bleed, glyph ~240/512 (safe zone)
-const svg = (size, maskable) => {
-  const s = maskable ? 10 : 12.5;
-  const center = (512 - 24 * s) / 2;
+// Artwork in a 512 viewBox. `scale` shrinks the glyph toward center for maskable safe-zone.
+const art = (size, maskable) => {
+  const s = maskable ? 0.74 : 1; // shrink glyph for maskable
+  const off = ((1 - s) * 512) / 2;
   return `<svg width="${size}" height="${size}" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <rect width="512" height="512" rx="${maskable ? 0 : 114}" fill="#f0553d"/>
-    <g transform="translate(${center},${center}) scale(${s})" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-      <circle cx="13.5" cy="6.5" r=".9" fill="#fff" stroke="none"/>
-      <circle cx="17.5" cy="10.5" r=".9" fill="#fff" stroke="none"/>
-      <circle cx="8.5" cy="7.5" r=".9" fill="#fff" stroke="none"/>
-      <circle cx="6.5" cy="12.5" r=".9" fill="#fff" stroke="none"/>
+    <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7a5c"/><stop offset="1" stop-color="#e83c26"/>
+    </linearGradient></defs>
+    <rect width="512" height="512" rx="${maskable ? 0 : 118}" fill="url(#bg)"/>
+    <g transform="translate(${off},${off}) scale(${s})">
+      <path d="M150 196 Q256 156 362 196 L362 214 Q256 178 150 214 Z" fill="#ffffff" opacity="0.9"/>
+      <circle cx="196" cy="232" r="24" fill="#ffffff"/>
+      <circle cx="316" cy="232" r="24" fill="#ffffff"/>
+      <path d="M156 300 Q256 392 356 300" fill="none" stroke="#ffffff" stroke-width="42" stroke-linecap="round"/>
+      <circle cx="188" cy="372" r="12" fill="#ffd166"/>
+      <circle cx="256" cy="392" r="12" fill="#8be0c0"/>
+      <circle cx="324" cy="372" r="12" fill="#8ab6ff"/>
     </g></svg>`;
 };
 
@@ -27,7 +32,7 @@ const b = await chromium.launch();
 const page = await (await b.newContext({ deviceScaleFactor: 1 })).newPage();
 for (const t of targets) {
   await page.setViewportSize({ width: t.size, height: t.size });
-  await page.setContent(`<body style="margin:0;padding:0">${svg(t.size, t.maskable)}</body>`);
+  await page.setContent(`<body style="margin:0;padding:0">${art(t.size, t.maskable)}</body>`);
   const buf = await page.locator("svg").screenshot({ omitBackground: false });
   writeFileSync(t.path, buf);
   console.log("wrote", t.path, t.size);

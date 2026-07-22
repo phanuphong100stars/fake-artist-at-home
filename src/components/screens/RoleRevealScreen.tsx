@@ -161,7 +161,7 @@ function PlayerReveal({
                   <p className="text-sm font-semibold text-muted">คำของคุณคือ</p>
                   <p className="text-4xl font-extrabold">{word}</p>
                   <p className="max-w-[15rem] text-xs text-muted">
-                    วาดให้เพื่อนจิตรกรรู้ว่าคุณรู้คำ แต่อย่าชัดจนตัวปลอมเดาออก
+                    วาดให้เพื่อนศิลปินรู้ว่าคุณรู้คำ แต่อย่าชัดจนตัวปลอมเดาออก
                   </p>
                 </>
               )}

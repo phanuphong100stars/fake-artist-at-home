@@ -11,10 +11,10 @@ const notoThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "จิตรกรตัวปลอม — Fake Artist",
+  title: "ศิลปินจอมปลอม — Fake Artist",
   description: "เกมปาร์ตี้วาดรูปหาตัวปลอม เล่นด้วยมือถือเครื่องเดียว",
-  applicationName: "จิตรกรตัวปลอม",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "จิตรกรตัวปลอม" },
+  applicationName: "ศิลปินจอมปลอม",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "ศิลปินจอมปลอม" },
   formatDetection: { telephone: false },
 };
 
