@@ -10,6 +10,7 @@ import { RoleRevealScreen } from "@/components/screens/RoleRevealScreen";
 import { DrawScreen } from "@/components/screens/DrawScreen";
 import { RevealScreen } from "@/components/screens/RevealScreen";
 import { StatisticsScreen } from "@/components/screens/StatisticsScreen";
+import { ReplayScreen } from "@/components/screens/ReplayScreen";
 import { SettingsScreen } from "@/components/screens/SettingsScreen";
 import { HowToPlayScreen } from "@/components/screens/HowToPlayScreen";
 import { useGame } from "@/stores/gameStore";
@@ -49,6 +50,7 @@ export function GameShell() {
           {phase === "roleReveal" && <RoleRevealScreen />}
           {phase === "draw" && <DrawScreen />}
           {phase === "reveal" && <RevealScreen />}
+          {phase === "replay" && <ReplayScreen onBack={() => goTo("reveal")} />}
           {phase === "statistics" && <StatisticsScreen />}
         </motion.div>
       </AnimatePresence>

@@ -17,6 +17,7 @@ export type Phase =
   | "roleReveal"
   | "draw"
   | "reveal"
+  | "replay"
   | "statistics";
 
 export type Winner = "normals" | "fakers";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { VenetianMask, Palette, RotateCcw, BarChart3, Home } from "lucide-react";
+import { VenetianMask, Palette, RotateCcw, BarChart3, Home, PlayCircle } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { StaticCanvas } from "@/components/game/StaticCanvas";
 import { PlayerLegend } from "@/components/game/PlayerLegend";
@@ -141,7 +141,10 @@ export function RevealScreen() {
                 <Button size="lg" onClick={playAgain} className="col-span-2 w-full">
                   <RotateCcw className="h-5 w-5" /> เล่นอีกครั้ง
                 </Button>
-                <Button variant="secondary" onClick={() => goTo("statistics")}>
+                <Button variant="secondary" onClick={() => goTo("replay")} className="col-span-2">
+                  <PlayCircle className="h-5 w-5" /> ดูรีเพลย์
+                </Button>
+                <Button variant="ghost" onClick={() => goTo("statistics")}>
                   <BarChart3 className="h-5 w-5" /> สถิติ
                 </Button>
                 <Button variant="ghost" onClick={() => goTo("home")}>
