@@ -30,8 +30,9 @@ export function paintTimeline(
   playhead: number,
   w: number,
   h: number,
+  clear = true,
 ) {
-  ctx.clearRect(0, 0, w, h);
+  if (clear) ctx.clearRect(0, 0, w, h);
   for (const seg of segments) {
     if (playhead >= seg.end) {
       paintStroke(ctx, seg.stroke, w, h);

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Play, Pause, RotateCcw, SkipBack, SkipForward } from "lucide-react";
+import { ArrowLeft, Play, Pause, RotateCcw, SkipBack, SkipForward, Image as ImageIcon, Video } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { SegmentedControl } from "@/components/common/controls";
 import { useGame } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
 import { buildTimeline, paintTimeline } from "@/lib/canvas/replay";
+import { downloadBlob } from "@/lib/export/frame";
 
 export function ReplayScreen({ onBack }: { onBack: () => void }) {
   const strokes = useGame((s) => s.strokes);
@@ -19,6 +20,8 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
   const [playhead, setPlayhead] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<1 | 2 | 4>(1);
+  const [exporting, setExporting] = useState<null | "gif" | "video">(null);
+  const [progress, setProgress] = useState(0);
 
   const draw = (ph: number) => {
     const canvas = canvasRef.current;
@@ -73,6 +76,36 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing, speed, total]);
+
+  const doExportGif = async () => {
+    setPlaying(false);
+    setExporting("gif");
+    setProgress(0);
+    try {
+      const { exportGif } = await import("@/lib/export/gif");
+      const blob = await exportGif(strokes, { paper, onProgress: setProgress });
+      downloadBlob(blob, "fake-artist.gif");
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const doExportVideo = async () => {
+    setPlaying(false);
+    setExporting("video");
+    setProgress(0);
+    try {
+      const { exportWebM, videoSupported } = await import("@/lib/export/video");
+      if (!videoSupported()) {
+        alert("อุปกรณ์นี้ไม่รองรับการอัดวิดีโอ");
+        return;
+      }
+      const blob = await exportWebM(strokes, { paper, onProgress: setProgress });
+      downloadBlob(blob, "fake-artist.webm");
+    } finally {
+      setExporting(null);
+    }
+  };
 
   const atEnd = playhead >= total;
   const toggle = () => {
@@ -147,6 +180,18 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
           { value: 4, label: "x4" },
         ]}
       />
+
+      {/* export */}
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <Button variant="secondary" onClick={doExportGif} disabled={exporting !== null}>
+          <ImageIcon className="h-5 w-5" />
+          {exporting === "gif" ? `GIF ${Math.round(progress * 100)}%` : "บันทึก GIF"}
+        </Button>
+        <Button variant="secondary" onClick={doExportVideo} disabled={exporting !== null}>
+          <Video className="h-5 w-5" />
+          {exporting === "video" ? `วิดีโอ ${Math.round(progress * 100)}%` : "บันทึกวิดีโอ"}
+        </Button>
+      </div>
     </main>
   );
 }
