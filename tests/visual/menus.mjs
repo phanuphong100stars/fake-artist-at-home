@@ -1,0 +1,16 @@
+import { chromium } from "@playwright/test";
+const out = process.argv[2];
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+const page = await ctx.newPage();
+await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
+await page.getByLabel("ตั้งค่า").click(); await page.waitForTimeout(600);
+const o1 = await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);
+await page.screenshot({ path: `${out}/settings.png`, fullPage: true });
+console.log("settings overflow:", o1?"YES":"no");
+await page.getByLabel("กลับ").click(); await page.waitForTimeout(400);
+await page.getByText("วิธีเล่น").click(); await page.waitForTimeout(600);
+const o2 = await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);
+await page.screenshot({ path: `${out}/howto.png` });
+console.log("howto overflow:", o2?"YES":"no");
+await b.close();

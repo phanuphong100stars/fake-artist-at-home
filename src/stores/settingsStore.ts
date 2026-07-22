@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
   singleStroke: true,
   allowUndo: true,
   allowClear: true,
-  brushSize: 6,
+  brushSize: 8,
   paper: "white",
   theme: "system",
   sound: true,

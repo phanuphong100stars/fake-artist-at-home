@@ -3,6 +3,8 @@
 import { forwardRef } from "react";
 import { motion, type HTMLMotionProps } from "motion/react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
+import { play } from "@/lib/sound";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
@@ -27,11 +29,16 @@ export interface ButtonProps extends HTMLMotionProps<"button"> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", ...props }, ref) => (
+  ({ className, variant = "primary", size = "md", onClick, ...props }, ref) => (
     <motion.button
       ref={ref}
       whileTap={{ scale: 0.96 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      onClick={(e) => {
+        haptic("light");
+        play("tap");
+        onClick?.(e);
+      }}
       className={cn(
         "inline-flex items-center justify-center gap-2 font-semibold no-select",
         "transition-[filter,background-color] disabled:opacity-50 disabled:pointer-events-none",

@@ -10,6 +10,8 @@ import { useStats } from "./statsStore";
 
 export type Phase =
   | "home"
+  | "settings"
+  | "howto"
   | "setup"
   | "gameSetting"
   | "roleReveal"

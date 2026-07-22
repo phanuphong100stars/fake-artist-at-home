@@ -10,6 +10,8 @@ import { useGame, type Winner } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
 import { colorVar } from "@/lib/colors";
 import { fireConfetti, fireFireworks } from "@/lib/celebrate";
+import { play } from "@/lib/sound";
+import { haptic } from "@/lib/haptics";
 
 export function RevealScreen() {
   const players = useGame((s) => s.players);
@@ -24,7 +26,11 @@ export function RevealScreen() {
   const [showRoles, setShowRoles] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowRoles(true), 900);
+    const t = setTimeout(() => {
+      setShowRoles(true);
+      play("reveal");
+      haptic("medium");
+    }, 900);
     return () => clearTimeout(t);
   }, []);
 
@@ -33,8 +39,15 @@ export function RevealScreen() {
 
   const pick = (w: Winner) => {
     declareWinner(w);
-    if (w === "normals") fireConfetti();
-    else fireFireworks();
+    if (w === "normals") {
+      fireConfetti();
+      play("success");
+      haptic("success");
+    } else {
+      fireFireworks();
+      play("fail");
+      haptic("error");
+    }
   };
 
   return (
