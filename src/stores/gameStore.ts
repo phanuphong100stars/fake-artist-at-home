@@ -8,6 +8,8 @@ import { loadClusters } from "@/data/words";
 import { useSettings } from "./settingsStore";
 import { useHistory } from "./historyStore";
 import { useStats } from "./statsStore";
+import { useCustomWords } from "./customWordsStore";
+import { saveGame, type GameRecord } from "@/data/repository/historyRepo";
 
 export type Phase =
   | "home"
@@ -19,7 +21,9 @@ export type Phase =
   | "draw"
   | "reveal"
   | "replay"
-  | "statistics";
+  | "statistics"
+  | "history"
+  | "customWords";
 
 export type Winner = "normals" | "fakers";
 
@@ -53,8 +57,10 @@ interface GameState {
   strokes: Stroke[]; // all committed strokes
   startedAt: number; // Date.now() when game started (for play-time stat)
   winner: Winner | null; // human-declared outcome, for confetti + stats
+  replayRecord: GameRecord | null; // a past game to replay (null = current game)
 
   goTo: (phase: Phase) => void;
+  viewReplay: (rec: GameRecord | null) => void; // open replay for a record (or current)
   addPlayer: () => void;
   removePlayer: (id: string) => void;
   renamePlayer: (id: string, name: string) => void;
@@ -89,14 +95,17 @@ export const useGame = create<GameState>()(
   strokes: [],
   startedAt: 0,
   winner: null,
+  replayRecord: null,
 
   goTo: (phase) => set({ phase }),
+  viewReplay: (rec) => set({ replayRecord: rec, phase: "replay" }),
 
   startGame: () => {
     const { players } = get();
     const settings = useSettings.getState();
+    const pool = [...loadClusters(), ...useCustomWords.getState().clusters];
     const cluster = pickCluster(
-      loadClusters(),
+      pool,
       useHistory.getState().recentClusterIds,
       settings.difficulty,
     );
@@ -132,7 +141,7 @@ export const useGame = create<GameState>()(
   },
 
   declareWinner: (winner) => {
-    const { deal, strokes, startedAt, winner: prev } = get();
+    const { deal, strokes, startedAt, winner: prev, players } = get();
     if (prev) return; // already recorded
     set({ winner });
     useStats.getState().record({
@@ -143,6 +152,20 @@ export const useGame = create<GameState>()(
       fakersWins: winner === "fakers" ? 1 : 0,
       playTimeMs: startedAt ? Date.now() - startedAt : 0,
     });
+    if (deal) {
+      const now = Date.now();
+      const rec: GameRecord = {
+        id: `g-${now.toString(36)}`,
+        at: now,
+        fakerNames: players.filter((p) => deal.fakerIds.includes(p.id)).map((p) => p.name),
+        realWord: deal.realWord,
+        decoyWord: deal.decoyWord,
+        winner,
+        paper: useSettings.getState().paper,
+        strokes,
+      };
+      void saveGame(rec); // fire-and-forget IndexedDB write
+    }
   },
 
   playAgain: () => {

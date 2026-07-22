@@ -11,21 +11,25 @@ import { DrawScreen } from "@/components/screens/DrawScreen";
 import { RevealScreen } from "@/components/screens/RevealScreen";
 import { StatisticsScreen } from "@/components/screens/StatisticsScreen";
 import { ReplayScreen } from "@/components/screens/ReplayScreen";
+import { HistoryScreen } from "@/components/screens/HistoryScreen";
 import { SettingsScreen } from "@/components/screens/SettingsScreen";
+import { CustomWordsScreen } from "@/components/screens/CustomWordsScreen";
 import { HowToPlayScreen } from "@/components/screens/HowToPlayScreen";
 import { useGame } from "@/stores/gameStore";
-
-const pageTransition = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
-  transition: { duration: 0.28, ease: [0.25, 1, 0.5, 1] as const },
-};
 
 export function GameShell() {
   const phase = useGame((s) => s.phase);
   const goTo = useGame((s) => s.goTo);
+  const replayRecord = useGame((s) => s.replayRecord);
   const reduceMotion = useSettings((s) => s.reduceMotion);
+  const animationSpeed = useSettings((s) => s.animationSpeed);
+
+  const pageTransition = {
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -8 },
+    transition: { duration: 0.28 / animationSpeed, ease: [0.25, 1, 0.5, 1] as const },
+  };
 
   return (
     <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
@@ -40,6 +44,8 @@ export function GameShell() {
             />
           )}
           {phase === "settings" && <SettingsScreen onBack={() => goTo("home")} />}
+          {phase === "customWords" && <CustomWordsScreen onBack={() => goTo("settings")} />}
+          {phase === "history" && <HistoryScreen onBack={() => goTo("home")} />}
           {phase === "howto" && (
             <HowToPlayScreen onClose={() => goTo("home")} onStart={() => goTo("setup")} />
           )}
@@ -50,7 +56,9 @@ export function GameShell() {
           {phase === "roleReveal" && <RoleRevealScreen />}
           {phase === "draw" && <DrawScreen />}
           {phase === "reveal" && <RevealScreen />}
-          {phase === "replay" && <ReplayScreen onBack={() => goTo("reveal")} />}
+          {phase === "replay" && (
+            <ReplayScreen onBack={() => goTo(replayRecord ? "history" : "reveal")} />
+          )}
           {phase === "statistics" && <StatisticsScreen />}
         </motion.div>
       </AnimatePresence>

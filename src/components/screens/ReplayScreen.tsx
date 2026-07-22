@@ -10,8 +10,11 @@ import { buildTimeline, paintTimeline } from "@/lib/canvas/replay";
 import { downloadBlob } from "@/lib/export/frame";
 
 export function ReplayScreen({ onBack }: { onBack: () => void }) {
-  const strokes = useGame((s) => s.strokes);
-  const paper = useSettings((s) => s.paper);
+  const record = useGame((s) => s.replayRecord);
+  const currentStrokes = useGame((s) => s.strokes);
+  const settingPaper = useSettings((s) => s.paper);
+  const strokes = record?.strokes ?? currentStrokes;
+  const paper = record?.paper ?? settingPaper;
 
   const { segments, total } = useMemo(() => buildTimeline(strokes), [strokes]);
   const canvasRef = useRef<HTMLCanvasElement>(null);

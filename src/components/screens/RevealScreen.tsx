@@ -21,6 +21,7 @@ export function RevealScreen() {
   const declareWinner = useGame((s) => s.declareWinner);
   const playAgain = useGame((s) => s.playAgain);
   const goTo = useGame((s) => s.goTo);
+  const viewReplay = useGame((s) => s.viewReplay);
   const paper = useSettings((s) => s.paper);
 
   const [showRoles, setShowRoles] = useState(false);
@@ -141,7 +142,7 @@ export function RevealScreen() {
                 <Button size="lg" onClick={playAgain} className="col-span-2 w-full">
                   <RotateCcw className="h-5 w-5" /> เล่นอีกครั้ง
                 </Button>
-                <Button variant="secondary" onClick={() => goTo("replay")} className="col-span-2">
+                <Button variant="secondary" onClick={() => viewReplay(null)} className="col-span-2">
                   <PlayCircle className="h-5 w-5" /> ดูรีเพลย์
                 </Button>
                 <Button variant="ghost" onClick={() => goTo("statistics")}>

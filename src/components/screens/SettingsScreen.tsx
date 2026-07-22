@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, PencilLine } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { SegmentedControl, Toggle, SettingRow } from "@/components/common/controls";
 import { useSettings } from "@/stores/settingsStore";
+import { useGame } from "@/stores/gameStore";
 import type { PaperBackground } from "@/domain/types";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const s = useSettings();
+  const goTo = useGame((g) => g.goTo);
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5">
@@ -119,6 +121,14 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
               ]}
             />
           </div>
+        </Section>
+
+        <Section title="เนื้อหา">
+          <button onClick={() => goTo("customWords")} className="flex w-full items-center gap-3 py-3 text-left">
+            <PencilLine className="h-5 w-5 text-brand" />
+            <span className="flex-1 font-semibold">คำของฉัน</span>
+            <ChevronRight className="h-5 w-5 text-muted" />
+          </button>
         </Section>
 
         <Section title="การเข้าถึง">

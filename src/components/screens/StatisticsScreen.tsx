@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Home, RotateCcw, Gamepad2, Brush, VenetianMask, Palette, Clock, Trophy } from "lucide-react";
+import { Home, RotateCcw, Gamepad2, Brush, VenetianMask, Palette, Clock, Trophy, History } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { useStats } from "@/stores/statsStore";
 import { useGame } from "@/stores/gameStore";
@@ -53,6 +53,9 @@ export function StatisticsScreen() {
       <div className="mt-4 space-y-2">
         <Button size="lg" onClick={playAgain} className="w-full">
           <RotateCcw className="h-5 w-5" /> เล่นอีกครั้ง
+        </Button>
+        <Button variant="secondary" onClick={() => goTo("history")} className="w-full">
+          <History className="h-5 w-5" /> ดูประวัติเกม
         </Button>
         <div className="grid grid-cols-2 gap-2">
           <Button variant="secondary" onClick={() => goTo("home")}>
