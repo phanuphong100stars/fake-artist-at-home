@@ -36,19 +36,22 @@ export function DrawScreen() {
 
   return (
     // Always landscape — wrapped in ForceLandscape, so fill the parent (not dvh).
-    <main className="flex h-full w-full flex-row gap-3 px-4 py-[max(0.6rem,env(safe-area-inset-top))]">
+    // Rails kept narrow so the paper gets the most room possible.
+    <main className="flex h-full w-full flex-row gap-2 px-2 py-2">
       {/* INFO rail (left) */}
-      <div className="flex w-44 shrink-0 flex-col gap-2 overflow-y-auto">
+      <div className="flex w-28 shrink-0 flex-col gap-2 overflow-y-auto">
         <motion.header
           key={drawIndex}
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3"
+          className="flex flex-col gap-1.5"
         >
-          <span className="h-5 w-5 shrink-0 rounded-full ring-2 ring-white/60" style={{ backgroundColor: colorVar(current.color) }} />
-          <div className="min-w-0 flex-1">
-            <p className="text-xs text-muted">ตาที่ {drawIndex + 1}/{order.length}</p>
-            <h1 className="truncate text-lg font-bold leading-tight">{current.name}</h1>
+          <div className="flex items-center gap-2">
+            <span className="h-4 w-4 shrink-0 rounded-full ring-2 ring-white/60" style={{ backgroundColor: colorVar(current.color) }} />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] leading-none text-muted">ตาที่ {drawIndex + 1}/{order.length}</p>
+              <h1 className="truncate text-base font-bold leading-tight">{current.name}</h1>
+            </div>
           </div>
           {s.timerEnabled && <TurnTimer key={drawIndex} seconds={s.timerSeconds} />}
         </motion.header>
@@ -91,9 +94,9 @@ export function DrawScreen() {
       </div>
 
       {/* CONTROLS rail (right) */}
-      <div className="flex w-44 shrink-0 flex-col items-stretch justify-center gap-3">
+      <div className="flex w-28 shrink-0 flex-col items-stretch justify-center gap-2.5">
         {/* brush sizes */}
-        <div className="flex w-full items-center justify-center gap-1.5 rounded-full bg-elevated p-1.5">
+        <div className="flex w-full items-center justify-center gap-1 rounded-full bg-elevated p-1">
           {BRUSHES.map((b) => (
             <button
               key={b}
@@ -101,7 +104,7 @@ export function DrawScreen() {
               aria-label={`ขนาดพู่กัน ${b}`}
               aria-pressed={s.brushSize === b}
               className={cn(
-                "grid h-9 w-9 place-items-center rounded-full transition active:scale-90",
+                "grid h-8 w-8 place-items-center rounded-full transition active:scale-90",
                 s.brushSize === b && "bg-surface shadow-card",
               )}
             >
@@ -116,7 +119,7 @@ export function DrawScreen() {
               onClick={() => canvasRef.current?.undo()}
               disabled={count === 0}
               aria-label="ย้อนกลับ"
-              className="grid h-11 w-11 place-items-center rounded-full bg-elevated text-foreground disabled:opacity-30 active:scale-90"
+              className="grid h-10 w-10 place-items-center rounded-full bg-elevated text-foreground disabled:opacity-30 active:scale-90"
             >
               <Undo2 className="h-5 w-5" />
             </button>
@@ -126,7 +129,7 @@ export function DrawScreen() {
               onClick={() => canvasRef.current?.clear()}
               disabled={count === 0}
               aria-label="ล้าง"
-              className="grid h-11 w-11 place-items-center rounded-full bg-elevated text-foreground disabled:opacity-30 active:scale-90"
+              className="grid h-10 w-10 place-items-center rounded-full bg-elevated text-foreground disabled:opacity-30 active:scale-90"
             >
               <Trash2 className="h-5 w-5" />
             </button>
@@ -138,10 +141,10 @@ export function DrawScreen() {
           variant={isLast ? "danger" : "primary"}
           onClick={done}
           disabled={count === 0}
-          className="w-full"
+          className="w-full px-2"
         >
           {isLast ? <Flag className="h-5 w-5" /> : <Check className="h-5 w-5" />}
-          {isLast ? "จบเกม — เฉลย" : "เสร็จ ส่งต่อ"}
+          {isLast ? "เฉลย" : "ส่งต่อ"}
         </Button>
       </div>
 
