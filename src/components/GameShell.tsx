@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { ThemeApplier } from "@/components/theme/ThemeApplier";
 import { useSettings } from "@/stores/settingsStore";
@@ -24,6 +25,29 @@ export function GameShell() {
   const reduceMotion = useSettings((s) => s.reduceMotion);
   const animationSpeed = useSettings((s) => s.animationSpeed);
 
+  // Map each phase onto a browser history entry so the device/browser Back
+  // button steps back through screens instead of leaving the app. popstate
+  // drives the store; the store->history push is skipped for pop-driven changes.
+  const fromPop = useRef(false);
+  useEffect(() => {
+    history.replaceState({ phase: useGame.getState().phase }, "");
+    const onPop = (e: PopStateEvent) => {
+      fromPop.current = true;
+      goTo((e.state?.phase as typeof phase) ?? "home");
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [goTo]);
+
+  useEffect(() => {
+    if (fromPop.current) {
+      fromPop.current = false;
+      return;
+    }
+    if ((history.state?.phase as typeof phase | undefined) === phase) return;
+    history.pushState({ phase }, "");
+  }, [phase]);
+
   const pageTransition = {
     initial: { opacity: 0, y: 8 },
     animate: { opacity: 1, y: 0 },
@@ -41,6 +65,7 @@ export function GameShell() {
               onStart={() => goTo("setup")}
               onHowTo={() => goTo("howto")}
               onSettings={() => goTo("settings")}
+              onHistory={() => goTo("history")}
             />
           )}
           {phase === "settings" && <SettingsScreen onBack={() => goTo("home")} />}

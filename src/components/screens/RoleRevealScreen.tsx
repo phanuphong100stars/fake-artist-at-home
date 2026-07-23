@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Eye, Palette, VenetianMask, ArrowRight, Hand } from "lucide-react";
+import { Eye, Palette, VenetianMask, ArrowRight, Hand, RefreshCw } from "lucide-react";
 import { Button } from "@/components/common/Button";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useGame } from "@/stores/gameStore";
+import { useSettings } from "@/stores/settingsStore";
 import { colorVar } from "@/lib/colors";
 
 export function RoleRevealScreen() {
@@ -12,6 +14,9 @@ export function RoleRevealScreen() {
   const deal = useGame((s) => s.deal);
   const revealIndex = useGame((s) => s.revealIndex);
   const nextReveal = useGame((s) => s.nextReveal);
+  const startGame = useGame((s) => s.startGame);
+  const fakerSeesWord = useSettings((s) => s.fakerSeesWord);
+  const [confirmSwap, setConfirmSwap] = useState(false);
 
   if (!deal) return null;
   const player = players[revealIndex];
@@ -22,19 +27,27 @@ export function RoleRevealScreen() {
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-hidden px-6">
-      {/* progress dots */}
-      <div className="z-10 flex gap-2 pt-[max(1.5rem,env(safe-area-inset-top))]">
-        {players.map((p, i) => (
-          <span
-            key={p.id}
-            className="h-2 rounded-full transition-all"
-            style={{
-              width: i === revealIndex ? 24 : 8,
-              backgroundColor:
-                i < revealIndex ? "var(--success)" : i === revealIndex ? colorVar(player.color) : "var(--border-strong)",
-            }}
-          />
-        ))}
+      {/* top bar: progress dots + change-word */}
+      <div className="z-10 flex w-full items-center justify-between pt-[max(1.5rem,env(safe-area-inset-top))]">
+        <div className="flex gap-2">
+          {players.map((p, i) => (
+            <span
+              key={p.id}
+              className="h-2 rounded-full transition-all"
+              style={{
+                width: i === revealIndex ? 24 : 8,
+                backgroundColor:
+                  i < revealIndex ? "var(--success)" : i === revealIndex ? colorVar(player.color) : "var(--border-strong)",
+              }}
+            />
+          ))}
+        </div>
+        <button
+          onClick={() => setConfirmSwap(true)}
+          className="flex items-center gap-1.5 rounded-full bg-elevated px-3 py-1.5 text-xs font-semibold text-muted active:scale-95"
+        >
+          <RefreshCw className="h-3.5 w-3.5" /> เปลี่ยนคำ
+        </button>
       </div>
 
       <PlayerReveal
@@ -43,9 +56,23 @@ export function RoleRevealScreen() {
         color={player.color}
         role={assignment.role}
         word={assignment.word}
+        fakerSeesWord={fakerSeesWord}
         teammates={teammates}
         isLast={revealIndex === players.length - 1}
         onNext={nextReveal}
+      />
+
+      <ConfirmDialog
+        open={confirmSwap}
+        title="เปลี่ยนคำและเริ่มรอบใหม่?"
+        description="สุ่มคำใหม่ให้ทุกคน แล้วเริ่มเปิดบทบาทใหม่ตั้งแต่คนแรก (ผู้เล่นเดิม)"
+        confirmLabel="สุ่มคำใหม่"
+        cancelLabel="ยังก่อน"
+        onConfirm={() => {
+          setConfirmSwap(false);
+          startGame();
+        }}
+        onCancel={() => setConfirmSwap(false)}
       />
     </main>
   );
@@ -56,6 +83,7 @@ function PlayerReveal({
   color,
   role,
   word,
+  fakerSeesWord,
   teammates,
   isLast,
   onNext,
@@ -64,6 +92,7 @@ function PlayerReveal({
   color: string;
   role: "normal" | "faker";
   word: string;
+  fakerSeesWord: boolean;
   teammates: string[];
   isLast: boolean;
   onNext: () => void;
@@ -129,43 +158,61 @@ function PlayerReveal({
       >
         <AnimatePresence mode="wait">
           {peeking ? (
-            <motion.div
-              key="card"
-              initial={{ rotateY: 90, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: -90, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
-              className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl p-6 shadow-float"
-              style={{
-                backgroundColor: isFaker ? "var(--foreground)" : "var(--surface)",
-                color: isFaker ? "var(--background)" : "var(--foreground)",
-              }}
-            >
-              {isFaker ? (
-                <>
-                  <VenetianMask className="h-10 w-10" />
-                  <p className="text-sm font-semibold opacity-70">คุณคือ ตัวปลอม</p>
-                  <p className="text-4xl font-extrabold">{word}</p>
-                  <p className="max-w-[15rem] text-xs opacity-70">
-                    นี่คือ “คำหลอก” — วาดให้เนียน แล้วจับให้ได้ว่าคำจริงคืออะไร
-                  </p>
-                  {teammates.length > 0 && (
-                    <p className="text-xs font-semibold text-brand">
-                      ตัวปลอมคนอื่น: {teammates.join(", ")}
+            isFaker ? (
+              <motion.div
+                key="faker"
+                initial={{ rotateY: 90, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                exit={{ rotateY: -90, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+                className="relative flex h-full w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl p-6 text-white shadow-float ring-2 ring-danger"
+                style={{ background: "linear-gradient(155deg, #2b1116 0%, #46101a 55%, #7a1220 100%)" }}
+              >
+                {/* bold role badge — unmistakable */}
+                <span className="flex items-center gap-2 rounded-full bg-danger px-4 py-1.5 text-sm font-extrabold uppercase tracking-wide text-white shadow-card">
+                  <VenetianMask className="h-5 w-5" /> ตัวปลอม
+                </span>
+                {fakerSeesWord ? (
+                  <>
+                    <p className="text-xs font-semibold text-white/60">คำหลอกของคุณ</p>
+                    <p className="text-4xl font-extrabold drop-shadow">{word}</p>
+                    <p className="max-w-[15rem] text-xs text-white/75">
+                      วาดให้เนียน แล้วจับให้ได้ว่า “คำจริง” คืออะไร
                     </p>
-                  )}
-                </>
-              ) : (
-                <>
-                  <Palette className="h-10 w-10 text-brand" />
-                  <p className="text-sm font-semibold text-muted">คำของคุณคือ</p>
-                  <p className="text-4xl font-extrabold">{word}</p>
-                  <p className="max-w-[15rem] text-xs text-muted">
-                    วาดให้เพื่อนศิลปินรู้ว่าคุณรู้คำ แต่อย่าชัดจนตัวปลอมเดาออก
+                  </>
+                ) : (
+                  <>
+                    <p className="text-3xl font-extrabold">คุณไม่มีคำ</p>
+                    <p className="max-w-[16rem] text-xs text-white/75">
+                      แกล้งวาดให้เนียนเหมือนรู้คำ แล้วเดาว่าคำจริงคืออะไร อย่าให้โดนจับได้
+                    </p>
+                  </>
+                )}
+                {teammates.length > 0 && (
+                  <p className="mt-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
+                    ตัวปลอมคนอื่น: {teammates.join(", ")}
                   </p>
-                </>
-              )}
-            </motion.div>
+                )}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="normal"
+                initial={{ rotateY: 90, opacity: 0 }}
+                animate={{ rotateY: 0, opacity: 1 }}
+                exit={{ rotateY: -90, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
+                className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl bg-surface p-6 text-foreground shadow-float ring-2 ring-success/40"
+              >
+                <span className="flex items-center gap-2 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
+                  <Palette className="h-5 w-5" /> ศิลปินตัวจริง
+                </span>
+                <p className="text-xs font-semibold text-muted">คำของคุณคือ</p>
+                <p className="text-4xl font-extrabold">{word}</p>
+                <p className="max-w-[15rem] text-xs text-muted">
+                  วาดให้เพื่อนศิลปินรู้ว่าคุณรู้คำ แต่อย่าชัดจนตัวปลอมเดาออก
+                </p>
+              </motion.div>
+            )
           ) : (
             <motion.div
               key="cover"

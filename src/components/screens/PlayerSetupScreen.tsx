@@ -113,14 +113,19 @@ function PlayerRow({
       value={player}
       dragListener={false}
       dragControls={controls}
+      dragMomentum={false}
       className="rounded-lg border border-border bg-surface p-3 shadow-card"
     >
       <div className="flex items-center gap-2">
-        {/* drag handle — only this starts a drag, so taps/inputs still work */}
+        {/* drag handle — only this starts a drag, so taps/inputs still work.
+            Inline touch-action:none is required: the global `button{}` rule is
+            unlayered and would otherwise beat Tailwind's layered .touch-none,
+            leaving touch-action:manipulation and killing touch drag. */}
         <button
           aria-label="ลากเพื่อสลับลำดับ"
           onPointerDown={(e) => controls.start(e)}
-          className="shrink-0 cursor-grab touch-none px-1 text-muted active:cursor-grabbing"
+          style={{ touchAction: "none" }}
+          className="shrink-0 cursor-grab px-1 text-muted active:cursor-grabbing"
         >
           <GripVertical className="h-5 w-5" />
         </button>

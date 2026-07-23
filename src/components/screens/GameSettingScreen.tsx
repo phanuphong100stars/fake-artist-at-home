@@ -3,6 +3,7 @@
 import { ArrowLeft, Minus, Plus, Play } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { SegmentedControl, Toggle, SettingRow } from "@/components/common/controls";
+import { BrushPicker } from "@/components/game/BrushPicker";
 import { useSettings } from "@/stores/settingsStore";
 import { useGame } from "@/stores/gameStore";
 import type { GameSettings } from "@/domain/types";
@@ -82,6 +83,17 @@ export function GameSettingScreen({ onBack }: Props) {
               { value: "easyMedium", label: "ง่าย + กลาง" },
             ]}
           />
+        </div>
+
+        {/* faker sees a word? */}
+        <SettingRow title="ตัวปลอมเห็นคำ" desc={s.fakerSeesWord ? "ได้ “คำหลอก” ไว้เนียน" : "ไม่มีคำเลย — ต้องเดาเอง"}>
+          <Toggle label="ตัวปลอมเห็นคำ" checked={s.fakerSeesWord} onChange={(v) => s.set("fakerSeesWord", v)} />
+        </SettingRow>
+
+        {/* brush type */}
+        <div className="py-3">
+          <p className="mb-2 font-semibold">แปรง</p>
+          <BrushPicker value={s.brushType} onChange={(b) => s.set("brushType", b)} />
         </div>
 
         {/* single stroke */}
