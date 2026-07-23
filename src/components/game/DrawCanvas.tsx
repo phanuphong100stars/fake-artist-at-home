@@ -1,8 +1,8 @@
 "use client";
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
-import type { Point, PlayerColor, Stroke, PaperBackground } from "@/domain/types";
-import { paintStroke } from "@/lib/canvas/render";
+import type { Point, PlayerColor, Stroke, PaperBackground, BrushType } from "@/domain/types";
+import { paintStroke, contentRect } from "@/lib/canvas/render";
 
 export interface DrawCanvasHandle {
   undo: () => void;
@@ -15,15 +15,17 @@ interface Props {
   playerId: string;
   color: PlayerColor;
   brushSize: number;
+  brushType: BrushType;
   singleStroke: boolean;
   paper: PaperBackground;
+  palmRejection: boolean;
   onChange?: (count: number) => void;
 }
 
 let strokeSeq = 0;
 
 export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanvas(
-  { committed, playerId, color, brushSize, singleStroke, paper, onChange },
+  { committed, playerId, color, brushSize, brushType, singleStroke, paper, palmRejection, onChange },
   ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,6 +33,8 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   const current = useRef<Stroke | null>(null);
   const size = useRef({ w: 0, h: 0, dpr: 1 });
   const rafPending = useRef(false);
+  const penSeen = useRef(false); // once a stylus touches, treat finger/palm as rest
+  const activePointer = useRef<number | null>(null); // only this pointer draws this stroke
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
@@ -99,22 +103,38 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
 
   const pt = (e: React.PointerEvent): Point => {
     const rect = canvasRef.current!.getBoundingClientRect();
+    const cr = contentRect(rect.width, rect.height);
+    const clamp = (v: number) => Math.max(0, Math.min(1, v));
     return {
-      x: (e.clientX - rect.left) / rect.width,
-      y: (e.clientY - rect.top) / rect.height,
+      x: clamp((e.clientX - rect.left - cr.x) / cr.w),
+      y: clamp((e.clientY - rect.top - cr.y) / cr.h),
       p: e.pressure > 0 ? e.pressure : 0.5,
       t: performance.now(),
     };
   };
 
+  // Palm rejection: once a pen is seen (or the toggle forces it), ignore touch
+  // input so a resting hand can't lay down stray dots/lines. Mouse always draws.
+  const rejects = (e: React.PointerEvent): boolean => {
+    if (e.pointerType === "pen") {
+      penSeen.current = true;
+      return false;
+    }
+    return e.pointerType === "touch" && (penSeen.current || palmRejection);
+  };
+
   const onDown = (e: React.PointerEvent) => {
+    if (rejects(e)) return;
+    if (current.current) return; // a stroke is already in progress (ignore 2nd finger)
     if (singleStroke && active.current.length >= 1) return;
     (e.target as Element).setPointerCapture(e.pointerId);
+    activePointer.current = e.pointerId;
     current.current = {
       id: `st_${strokeSeq++}`,
       playerId,
       color,
       size: brushSize,
+      brush: brushType,
       points: [pt(e)], // keep real t; onUp normalizes to ms-from-start
       committedAt: 0,
     };
@@ -123,7 +143,7 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
 
   const onMove = (e: React.PointerEvent) => {
     const s = current.current;
-    if (!s) return;
+    if (!s || e.pointerId !== activePointer.current) return;
     const p = pt(e);
     const last = s.points[s.points.length - 1];
     const dx = p.x - last.x;
@@ -133,14 +153,15 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     requestRender();
   };
 
-  const onUp = () => {
+  const onUp = (e: React.PointerEvent) => {
     const s = current.current;
-    if (!s) return;
+    if (!s || e.pointerId !== activePointer.current) return;
     // normalize timestamps to ms-from-start
     const t0 = s.points[0]?.t ?? 0;
     s.points = s.points.map((pp) => ({ ...pp, t: Math.max(0, pp.t - t0) }));
     active.current = [...active.current, s];
     current.current = null;
+    activePointer.current = null;
     onChange?.(active.current.length);
     requestRender();
   };

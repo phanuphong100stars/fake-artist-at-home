@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Play, Pause, RotateCcw, SkipBack, SkipForward, Image as ImageIcon, Video } from "lucide-react";
+import { ArrowLeft, Play, Pause, RotateCcw, SkipBack, SkipForward, Video } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { SegmentedControl } from "@/components/common/controls";
 import { useGame } from "@/stores/gameStore";
@@ -23,7 +23,7 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
   const [playhead, setPlayhead] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<1 | 2 | 4>(1);
-  const [exporting, setExporting] = useState<null | "gif" | "video">(null);
+  const [exporting, setExporting] = useState<null | "video">(null);
   const [progress, setProgress] = useState(0);
 
   const draw = (ph: number) => {
@@ -79,19 +79,6 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing, speed, total]);
-
-  const doExportGif = async () => {
-    setPlaying(false);
-    setExporting("gif");
-    setProgress(0);
-    try {
-      const { exportGif } = await import("@/lib/export/gif");
-      const blob = await exportGif(strokes, { paper, onProgress: setProgress });
-      downloadBlob(blob, "fake-artist.gif");
-    } finally {
-      setExporting(null);
-    }
-  };
 
   const doExportVideo = async () => {
     setPlaying(false);
@@ -185,14 +172,10 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
       />
 
       {/* export */}
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <Button variant="secondary" onClick={doExportGif} disabled={exporting !== null}>
-          <ImageIcon className="h-5 w-5" />
-          {exporting === "gif" ? `GIF ${Math.round(progress * 100)}%` : "บันทึก GIF"}
-        </Button>
-        <Button variant="secondary" onClick={doExportVideo} disabled={exporting !== null}>
+      <div className="mt-3">
+        <Button variant="secondary" onClick={doExportVideo} disabled={exporting !== null} className="w-full">
           <Video className="h-5 w-5" />
-          {exporting === "video" ? `วิดีโอ ${Math.round(progress * 100)}%` : "บันทึกวิดีโอ"}
+          {exporting === "video" ? `กำลังบันทึกวิดีโอ ${Math.round(progress * 100)}%` : "บันทึกวิดีโอ"}
         </Button>
       </div>
     </main>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Undo2, Trash2, Check, Timer as TimerIcon, Flag } from "lucide-react";
+import { Undo2, Trash2, Check, Timer as TimerIcon, Flag, RotateCw } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { DrawCanvas, type DrawCanvasHandle } from "@/components/game/DrawCanvas";
@@ -35,42 +35,50 @@ export function DrawScreen() {
   const done = () => (isLast ? setConfirmEnd(true) : commit());
 
   return (
-    <main className="mx-auto flex h-dvh w-full max-w-md flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-      {/* turn header */}
-      <motion.header
-        key={drawIndex}
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 pb-2"
-      >
-        <span className="h-5 w-5 rounded-full ring-2 ring-white/60" style={{ backgroundColor: colorVar(current.color) }} />
-        <div className="min-w-0 flex-1">
-          <p className="text-xs text-muted">ส่งเครื่องให้ · ตาที่ {drawIndex + 1}/{order.length}</p>
-          <h1 className="truncate text-lg font-bold leading-tight">{current.name}</h1>
+    <main className="mx-auto flex h-dvh w-full max-w-md flex-col gap-2 px-3 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] landscape:max-w-none landscape:flex-row landscape:gap-3 landscape:px-4">
+      {/* INFO — portrait: top · landscape: left rail */}
+      <div className="flex flex-col gap-2 landscape:w-44 landscape:shrink-0 landscape:justify-start landscape:overflow-y-auto">
+        {/* rotate hint — portrait only */}
+        <div className="flex items-center gap-2 rounded-lg bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand landscape:hidden">
+          <RotateCw className="h-4 w-4 shrink-0" />
+          หมุนเครื่องเป็นแนวนอนเพื่อพื้นที่วาดที่ใหญ่ขึ้น
         </div>
-        {s.timerEnabled && <TurnTimer key={drawIndex} seconds={s.timerSeconds} />}
-      </motion.header>
 
-      {/* turn progress */}
-      <div className="mb-2 flex gap-1">
-        {order.map((id, i) => {
-          const p = players.find((pl) => pl.id === id)!;
-          return (
-            <span
-              key={id}
-              className="h-1.5 flex-1 rounded-full"
-              style={{ backgroundColor: i <= drawIndex ? colorVar(p.color) : "var(--border-strong)", opacity: i < drawIndex ? 0.5 : 1 }}
-            />
-          );
-        })}
+        <motion.header
+          key={drawIndex}
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3"
+        >
+          <span className="h-5 w-5 shrink-0 rounded-full ring-2 ring-white/60" style={{ backgroundColor: colorVar(current.color) }} />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted">ตาที่ {drawIndex + 1}/{order.length}</p>
+            <h1 className="truncate text-lg font-bold leading-tight">{current.name}</h1>
+          </div>
+          {s.timerEnabled && <TurnTimer key={drawIndex} seconds={s.timerSeconds} />}
+        </motion.header>
+
+        {/* turn progress */}
+        <div className="flex gap-1">
+          {order.map((id, i) => {
+            const p = players.find((pl) => pl.id === id)!;
+            return (
+              <span
+                key={id}
+                className="h-1.5 flex-1 rounded-full"
+                style={{ backgroundColor: i <= drawIndex ? colorVar(p.color) : "var(--border-strong)", opacity: i < drawIndex ? 0.5 : 1 }}
+              />
+            );
+          })}
+        </div>
+
+        {/* who's who */}
+        <div className="max-h-16 overflow-y-auto landscape:max-h-none">
+          <PlayerLegend players={players} activeId={current.id} />
+        </div>
       </div>
 
-      {/* who's who */}
-      <div className="mb-2 max-h-16 overflow-y-auto">
-        <PlayerLegend players={players} activeId={current.id} />
-      </div>
-
-      {/* canvas */}
+      {/* CANVAS — fills remaining space; letterboxed to canonical aspect */}
       <div className="min-h-0 flex-1">
         <DrawCanvas
           key={drawIndex}
@@ -79,16 +87,18 @@ export function DrawScreen() {
           playerId={current.id}
           color={current.color}
           brushSize={s.brushSize}
+          brushType={s.brushType}
           singleStroke={s.singleStroke}
+          palmRejection={s.palmRejection}
           paper={s.paper}
           onChange={setCount}
         />
       </div>
 
-      {/* controls */}
-      <div className="flex items-center gap-2 pt-3">
+      {/* CONTROLS — portrait: bottom row (Done wraps full-width) · landscape: right rail */}
+      <div className="flex flex-wrap items-center gap-2 landscape:w-44 landscape:shrink-0 landscape:flex-col landscape:flex-nowrap landscape:items-stretch landscape:justify-center">
         {/* brush sizes */}
-        <div className="flex items-center gap-1.5 rounded-full bg-elevated p-1.5">
+        <div className="flex items-center justify-center gap-1.5 rounded-full bg-elevated p-1.5 landscape:w-full">
           {BRUSHES.map((b) => (
             <button
               key={b}
@@ -105,7 +115,7 @@ export function DrawScreen() {
           ))}
         </div>
 
-        <div className="ml-auto flex gap-1.5">
+        <div className="ml-auto flex gap-1.5 landscape:ml-0 landscape:justify-center">
           {s.allowUndo && (
             <button
               onClick={() => canvasRef.current?.undo()}
@@ -127,18 +137,18 @@ export function DrawScreen() {
             </button>
           )}
         </div>
-      </div>
 
-      <Button
-        size="lg"
-        variant={isLast ? "danger" : "primary"}
-        onClick={done}
-        disabled={count === 0}
-        className="mt-3 w-full"
-      >
-        {isLast ? <Flag className="h-5 w-5" /> : <Check className="h-5 w-5" />}
-        {isLast ? "จบเกม — เฉลย" : "เสร็จ ส่งต่อ"}
-      </Button>
+        <Button
+          size="lg"
+          variant={isLast ? "danger" : "primary"}
+          onClick={done}
+          disabled={count === 0}
+          className="w-full landscape:w-auto"
+        >
+          {isLast ? <Flag className="h-5 w-5" /> : <Check className="h-5 w-5" />}
+          {isLast ? "จบเกม — เฉลย" : "เสร็จ ส่งต่อ"}
+        </Button>
+      </div>
 
       <ConfirmDialog
         open={confirmEnd}

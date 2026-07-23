@@ -42,6 +42,14 @@
   --color-p10: #ec4899;  /* pink */
   --color-p11: #64748b;  /* slate */
   --color-p12: #10b981;  /* emerald */
+  --color-p13: #f43f5e;  /* rose */
+  --color-p14: #84cc16;  /* lime */
+  --color-p15: #06b6d4;  /* cyan */
+  --color-p16: #6366f1;  /* indigo */
+  --color-p17: #a855f7;  /* purple */
+  --color-p18: #b45309;  /* brown */
+  --color-p19: #15803d;  /* forest */
+  --color-p20: #9f1239;  /* crimson */
 }
 
 /* -------- light theme (warm paper) -------- */

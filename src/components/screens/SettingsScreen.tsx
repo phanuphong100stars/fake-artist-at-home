@@ -93,6 +93,9 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
               ]}
             />
           </div>
+          <SettingRow title="กันฝ่ามือ (Palm rejection)" desc="ใช้ปากกา/สไตลัส — มือวางไม่เกิดเส้น">
+            <Toggle label="palmRejection" checked={s.palmRejection} onChange={(v) => s.set("palmRejection", v)} />
+          </SettingRow>
           <SettingRow title="ปุ่มย้อนกลับ (Undo)">
             <Toggle label="undo" checked={s.allowUndo} onChange={(v) => s.set("allowUndo", v)} />
           </SettingRow>

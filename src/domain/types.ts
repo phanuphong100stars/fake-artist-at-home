@@ -14,7 +14,8 @@ export interface Cluster {
 
 export type PlayerColor =
   | "p1" | "p2" | "p3" | "p4" | "p5" | "p6"
-  | "p7" | "p8" | "p9" | "p10" | "p11" | "p12";
+  | "p7" | "p8" | "p9" | "p10" | "p11" | "p12"
+  | "p13" | "p14" | "p15" | "p16" | "p17" | "p18" | "p19" | "p20";
 
 export interface Player {
   id: string;
@@ -39,11 +40,14 @@ export interface Point {
   t: number; // ms since stroke start
 }
 
+export type BrushType = "marker" | "highlighter" | "crayon" | "pencil";
+
 export interface Stroke {
   id: string;
   playerId: string;
   color: PlayerColor;
   size: number; // brush px at 1x
+  brush?: BrushType; // undefined => "marker" (legacy records)
   points: Point[];
   committedAt: number; // turn order index it was committed at
 }
@@ -57,10 +61,13 @@ export type PaperBackground =
 export interface GameSettings {
   fakerCount: number; // 1..3, clamped to <= playerCount - 2
   fakerWinMode: FakerWinMode;
+  fakerSeesWord: boolean; // true = faker gets a decoy word; false = no word at all
   difficulty: "easy" | "easyMedium";
   timerEnabled: boolean;
   timerSeconds: 10 | 20 | 30 | 45 | 60 | 90 | 120;
   singleStroke: boolean;
+  brushType: BrushType; // paint texture used when drawing
+  palmRejection: boolean; // force pen/mouse-only (ignore touch) — tablet + stylus
   allowUndo: boolean;
   allowClear: boolean;
   brushSize: number;

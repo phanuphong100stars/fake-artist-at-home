@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Settings, Play, HelpCircle } from "lucide-react";
+import { Settings, Play, HelpCircle, Clock } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { AppLogo } from "@/components/common/AppLogo";
 
@@ -9,9 +9,10 @@ interface HomeScreenProps {
   onStart: () => void;
   onHowTo: () => void;
   onSettings: () => void;
+  onHistory: () => void;
 }
 
-export function HomeScreen({ onStart, onHowTo, onSettings }: HomeScreenProps) {
+export function HomeScreen({ onStart, onHowTo, onSettings, onHistory }: HomeScreenProps) {
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-hidden px-6">
       {/* ambient paint glow */}
@@ -52,9 +53,27 @@ export function HomeScreen({ onStart, onHowTo, onSettings }: HomeScreenProps) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-          className="text-4xl font-extrabold tracking-tight"
+          className="relative text-4xl font-extrabold tracking-tight"
         >
           ศิลปินจอมปลอม
+          {/* hand-painted brush swipe under the title */}
+          <motion.svg
+            aria-hidden
+            viewBox="0 0 240 24"
+            preserveAspectRatio="none"
+            className="absolute -bottom-3 left-1/2 h-3 w-[min(15rem,90%)] -translate-x-1/2 text-brand"
+          >
+            <motion.path
+              d="M4 15 C 40 6, 90 20, 130 12 S 210 6, 236 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={9}
+              strokeLinecap="round"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 0.9 }}
+              transition={{ delay: 0.5, duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
+            />
+          </motion.svg>
         </motion.h1>
 
         <motion.p
@@ -77,9 +96,14 @@ export function HomeScreen({ onStart, onHowTo, onSettings }: HomeScreenProps) {
         <Button size="lg" onClick={onStart} className="w-full">
           <Play className="h-5 w-5" fill="currentColor" /> เริ่มเล่น
         </Button>
-        <Button size="lg" variant="secondary" onClick={onHowTo} className="w-full">
-          <HelpCircle className="h-5 w-5" /> วิธีเล่น
-        </Button>
+        <div className="flex gap-3">
+          <Button size="lg" variant="secondary" onClick={onHowTo} className="flex-1">
+            <HelpCircle className="h-5 w-5" /> วิธีเล่น
+          </Button>
+          <Button size="lg" variant="secondary" onClick={onHistory} className="flex-1">
+            <Clock className="h-5 w-5" /> ประวัติ
+          </Button>
+        </div>
       </motion.div>
     </main>
   );

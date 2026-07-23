@@ -27,6 +27,11 @@ export async function saveGame(rec: GameRecord): Promise<void> {
   await set(KEY, [rec, ...games].slice(0, CAP));
 }
 
+export async function deleteGame(id: string): Promise<void> {
+  const games = await listGames();
+  await set(KEY, games.filter((g) => g.id !== id));
+}
+
 export async function clearGames(): Promise<void> {
   await set(KEY, []);
 }
