@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Undo2, Trash2, Check, Timer as TimerIcon, Flag, RotateCw } from "lucide-react";
+import { Undo2, Trash2, Check, Timer as TimerIcon, Flag } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { DrawCanvas, type DrawCanvasHandle } from "@/components/game/DrawCanvas";
@@ -35,15 +35,10 @@ export function DrawScreen() {
   const done = () => (isLast ? setConfirmEnd(true) : commit());
 
   return (
-    <main className="mx-auto flex h-dvh w-full max-w-md flex-col gap-2 px-3 pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))] landscape:max-w-none landscape:flex-row landscape:gap-3 landscape:px-4">
-      {/* INFO — portrait: top · landscape: left rail */}
-      <div className="flex flex-col gap-2 landscape:w-44 landscape:shrink-0 landscape:justify-start landscape:overflow-y-auto">
-        {/* rotate hint — portrait only */}
-        <div className="flex items-center gap-2 rounded-lg bg-brand-soft px-3 py-1.5 text-xs font-medium text-brand landscape:hidden">
-          <RotateCw className="h-4 w-4 shrink-0" />
-          หมุนเครื่องเป็นแนวนอนเพื่อพื้นที่วาดที่ใหญ่ขึ้น
-        </div>
-
+    // Always landscape — wrapped in ForceLandscape, so fill the parent (not dvh).
+    <main className="flex h-full w-full flex-row gap-3 px-4 py-[max(0.6rem,env(safe-area-inset-top))]">
+      {/* INFO rail (left) */}
+      <div className="flex w-44 shrink-0 flex-col gap-2 overflow-y-auto">
         <motion.header
           key={drawIndex}
           initial={{ opacity: 0, y: -8 }}
@@ -73,13 +68,13 @@ export function DrawScreen() {
         </div>
 
         {/* who's who */}
-        <div className="max-h-16 overflow-y-auto landscape:max-h-none">
+        <div className="overflow-y-auto">
           <PlayerLegend players={players} activeId={current.id} />
         </div>
       </div>
 
-      {/* CANVAS — fills remaining space; letterboxed to canonical aspect */}
-      <div className="min-h-0 flex-1">
+      {/* CANVAS — fills the middle; letterboxed to the canonical 4:3 paper box */}
+      <div className="min-h-0 min-w-0 flex-1">
         <DrawCanvas
           key={drawIndex}
           ref={canvasRef}
@@ -95,10 +90,10 @@ export function DrawScreen() {
         />
       </div>
 
-      {/* CONTROLS — portrait: bottom row (Done wraps full-width) · landscape: right rail */}
-      <div className="flex flex-wrap items-center gap-2 landscape:w-44 landscape:shrink-0 landscape:flex-col landscape:flex-nowrap landscape:items-stretch landscape:justify-center">
+      {/* CONTROLS rail (right) */}
+      <div className="flex w-44 shrink-0 flex-col items-stretch justify-center gap-3">
         {/* brush sizes */}
-        <div className="flex items-center justify-center gap-1.5 rounded-full bg-elevated p-1.5 landscape:w-full">
+        <div className="flex w-full items-center justify-center gap-1.5 rounded-full bg-elevated p-1.5">
           {BRUSHES.map((b) => (
             <button
               key={b}
@@ -115,7 +110,7 @@ export function DrawScreen() {
           ))}
         </div>
 
-        <div className="ml-auto flex gap-1.5 landscape:ml-0 landscape:justify-center">
+        <div className="flex justify-center gap-1.5">
           {s.allowUndo && (
             <button
               onClick={() => canvasRef.current?.undo()}
@@ -143,7 +138,7 @@ export function DrawScreen() {
           variant={isLast ? "danger" : "primary"}
           onClick={done}
           disabled={count === 0}
-          className="w-full landscape:w-auto"
+          className="w-full"
         >
           {isLast ? <Flag className="h-5 w-5" /> : <Check className="h-5 w-5" />}
           {isLast ? "จบเกม — เฉลย" : "เสร็จ ส่งต่อ"}

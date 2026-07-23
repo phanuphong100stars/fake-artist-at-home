@@ -236,6 +236,19 @@ button, [role="button"], .no-select {
   background-position: 0 12px;
 }
 
+/* force-landscape: rotate the subtree 90° when the device is portrait so the
+   draw screen is always landscape. Pinned with DrawCanvas's pointer mapping. */
+.force-landscape {
+  position: fixed;
+  top: 0;
+  left: 100%;
+  width: 100dvh;
+  height: 100dvw;
+  transform-origin: top left;
+  transform: rotate(90deg);
+  overflow: hidden;
+}
+
 /* utility: soft elevated card shadow tuned per-theme */
 .shadow-card { box-shadow: 0 1px 2px hsl(var(--shadow-color) / 0.06),
                            0 8px 24px -8px hsl(var(--shadow-color) / 0.12); }

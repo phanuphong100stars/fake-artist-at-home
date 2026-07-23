@@ -9,6 +9,7 @@ import { PlayerSetupScreen } from "@/components/screens/PlayerSetupScreen";
 import { GameSettingScreen } from "@/components/screens/GameSettingScreen";
 import { RoleRevealScreen } from "@/components/screens/RoleRevealScreen";
 import { DrawScreen } from "@/components/screens/DrawScreen";
+import { ForceLandscape } from "@/components/game/ForceLandscape";
 import { RevealScreen } from "@/components/screens/RevealScreen";
 import { StatisticsScreen } from "@/components/screens/StatisticsScreen";
 import { ReplayScreen } from "@/components/screens/ReplayScreen";
@@ -79,7 +80,11 @@ export function GameShell() {
           )}
           {phase === "gameSetting" && <GameSettingScreen onBack={() => goTo("setup")} />}
           {phase === "roleReveal" && <RoleRevealScreen />}
-          {phase === "draw" && <DrawScreen />}
+          {phase === "draw" && (
+            <ForceLandscape>
+              <DrawScreen />
+            </ForceLandscape>
+          )}
           {phase === "reveal" && <RevealScreen />}
           {phase === "replay" && (
             <ReplayScreen onBack={() => goTo(replayRecord ? "history" : "reveal")} />

@@ -3,6 +3,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 import type { Point, PlayerColor, Stroke, PaperBackground, BrushType } from "@/domain/types";
 import { paintStroke, contentRect } from "@/lib/canvas/render";
+import { useIsPortrait } from "@/components/game/ForceLandscape";
 
 export interface DrawCanvasHandle {
   undo: () => void;
@@ -37,6 +38,9 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   const rafPending = useRef(false);
   const penSeen = useRef(false); // once a stylus touches, treat finger/palm as rest
   const activePointer = useRef<number | null>(null); // only this pointer draws this stroke
+  // When portrait, ForceLandscape rotates the subtree 90°CW; undo that here so
+  // captured coords land in the same landscape frame everything else renders in.
+  const rotated = useIsPortrait();
 
   const render = useCallback(() => {
     const canvas = canvasRef.current;
@@ -114,9 +118,17 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     const rect = canvasRef.current!.getBoundingClientRect();
     const cr = contentRect(rect.width, rect.height);
     const clamp = (v: number) => Math.max(0, Math.min(1, v));
+    let nx = (e.clientX - rect.left - cr.x) / cr.w;
+    let ny = (e.clientY - rect.top - cr.y) / cr.h;
+    if (rotated) {
+      // invert CSS rotate(90deg) [origin top-left, left:100%]: nx=fy, ny=1-fx
+      const fx = nx, fy = ny;
+      nx = fy;
+      ny = 1 - fx;
+    }
     return {
-      x: clamp((e.clientX - rect.left - cr.x) / cr.w),
-      y: clamp((e.clientY - rect.top - cr.y) / cr.h),
+      x: clamp(nx),
+      y: clamp(ny),
       p: e.pressure > 0 ? e.pressure : 0.5,
       t: performance.now(),
     };
