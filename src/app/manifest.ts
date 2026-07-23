@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "เกมปาร์ตี้วาดรูปหาตัวปลอม เล่นด้วยมือถือเครื่องเดียว",
     start_url: "/",
     display: "standalone",
-    orientation: "portrait",
+    orientation: "any",
     background_color: "#fbfbf7",
     theme_color: "#f0553d",
     icons: [

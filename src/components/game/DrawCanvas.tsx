@@ -28,6 +28,8 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   { committed, playerId, color, brushSize, brushType, singleStroke, paper, palmRejection, onChange },
   ref,
 ) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const active = useRef<Stroke[]>([]);
   const current = useRef<Stroke | null>(null);
@@ -57,23 +59,30 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     });
   }, [render]);
 
-  // size to container, DPR-aware
+  // Size the paper box to the largest 4:3 rect that fits the available space,
+  // then fill it with the canvas. Because the box is exactly the canonical
+  // aspect, the whole visible paper is drawable (no dead letterbox margin) and
+  // strokes never squish.
   useEffect(() => {
+    const wrap = wrapRef.current;
+    const box = boxRef.current;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!wrap || !box || !canvas) return;
     const resize = () => {
-      const rect = canvas.getBoundingClientRect();
+      const cr = contentRect(wrap.clientWidth, wrap.clientHeight);
+      box.style.width = `${cr.w}px`;
+      box.style.height = `${cr.h}px`;
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
+      canvas.width = Math.round(cr.w * dpr);
+      canvas.height = Math.round(cr.h * dpr);
       const ctx = canvas.getContext("2d");
       if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      size.current = { w: rect.width, h: rect.height, dpr };
+      size.current = { w: cr.w, h: cr.h, dpr };
       render();
     };
     resize();
     const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
+    ro.observe(wrap);
     return () => ro.disconnect();
   }, [render]);
 
@@ -167,16 +176,23 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   };
 
   return (
-    <div className="paper h-full w-full overflow-hidden rounded-xl" data-paper={paper}>
-      <canvas
-        ref={canvasRef}
-        className="h-full w-full touch-none"
-        onPointerDown={onDown}
-        onPointerMove={onMove}
-        onPointerUp={onUp}
-        onPointerCancel={onUp}
-        onContextMenu={(e) => e.preventDefault()}
-      />
+    <div ref={wrapRef} className="grid h-full w-full place-items-center">
+      <div
+        ref={boxRef}
+        className="paper overflow-hidden rounded-xl shadow-card"
+        data-paper={paper}
+      >
+        <canvas
+          ref={canvasRef}
+          className="block h-full w-full touch-none"
+          style={{ touchAction: "none" }}
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerCancel={onUp}
+          onContextMenu={(e) => e.preventDefault()}
+        />
+      </div>
     </div>
   );
 });

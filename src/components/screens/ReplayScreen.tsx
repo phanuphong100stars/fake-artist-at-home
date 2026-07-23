@@ -7,6 +7,7 @@ import { SegmentedControl } from "@/components/common/controls";
 import { useGame } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
 import { buildTimeline, paintTimeline } from "@/lib/canvas/replay";
+import { useAspectCanvas } from "@/lib/canvas/useAspectCanvas";
 import { downloadBlob } from "@/lib/export/frame";
 
 export function ReplayScreen({ onBack }: { onBack: () => void }) {
@@ -17,8 +18,8 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
   const paper = record?.paper ?? settingPaper;
 
   const { segments, total } = useMemo(() => buildTimeline(strokes), [strokes]);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const dims = useRef({ w: 0, h: 0 });
+  const playheadRef = useRef(0);
 
   const [playhead, setPlayhead] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -26,37 +27,23 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
   const [exporting, setExporting] = useState<null | "video">(null);
   const [progress, setProgress] = useState(0);
 
+  // 4:3 paper box + DPR canvas; redraw at the current playhead on any resize
+  const { wrapRef, boxRef, canvasRef } = useAspectCanvas((ctx, w, h) => {
+    dims.current = { w, h };
+    paintTimeline(ctx, segments, playheadRef.current, w, h);
+  });
+
   const draw = (ph: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     paintTimeline(ctx, segments, ph, dims.current.w, dims.current.h);
   };
 
-  // size + redraw on resize
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 3);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      const ctx = canvas.getContext("2d");
-      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      dims.current = { w: rect.width, h: rect.height };
-      draw(playhead);
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    return () => ro.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // redraw whenever playhead/segments change
-  useEffect(() => draw(playhead), [playhead, segments]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    playheadRef.current = playhead;
+    draw(playhead);
+  }, [playhead, segments]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // playback loop
   useEffect(() => {
@@ -127,8 +114,10 @@ export function ReplayScreen({ onBack }: { onBack: () => void }) {
         <h1 className="text-xl font-bold">รีเพลย์</h1>
       </header>
 
-      <div className="paper mb-4 w-full flex-1 overflow-hidden rounded-xl border border-border shadow-card" data-paper={paper}>
-        <canvas ref={canvasRef} className="h-full w-full" />
+      <div ref={wrapRef} className="mb-4 grid w-full flex-1 place-items-center">
+        <div ref={boxRef} className="paper overflow-hidden rounded-xl border border-border shadow-card" data-paper={paper}>
+          <canvas ref={canvasRef} className="block h-full w-full" />
+        </div>
       </div>
 
       {/* scrubber */}

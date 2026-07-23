@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { Stroke, PaperBackground } from "@/domain/types";
 import { drawStrokes } from "@/lib/canvas/render";
+import { useAspectCanvas } from "@/lib/canvas/useAspectCanvas";
 
-/** Read-only render of finished strokes (reveal / stats thumbnails). */
+/** Read-only render of finished strokes (reveal / stats thumbnails). Renders
+ *  into a centered 4:3 paper box so the picture keeps its aspect — never squished. */
 export function StaticCanvas({
   strokes,
   paper = "white",
@@ -14,30 +15,15 @@ export function StaticCanvas({
   paper?: PaperBackground;
   className?: string;
 }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const paint = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 3);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      drawStrokes(ctx, strokes, rect.width, rect.height);
-    };
-    paint();
-    const ro = new ResizeObserver(paint);
-    ro.observe(canvas);
-    return () => ro.disconnect();
-  }, [strokes]);
+  const { wrapRef, boxRef, canvasRef } = useAspectCanvas((ctx, w, h) => {
+    drawStrokes(ctx, strokes, w, h);
+  });
 
   return (
-    <div className={`paper overflow-hidden rounded-xl ${className ?? ""}`} data-paper={paper}>
-      <canvas ref={ref} className="h-full w-full" />
+    <div ref={wrapRef} className={`grid place-items-center ${className ?? ""}`}>
+      <div ref={boxRef} className="paper overflow-hidden rounded-xl" data-paper={paper}>
+        <canvas ref={canvasRef} className="block h-full w-full" />
+      </div>
     </div>
   );
 }
