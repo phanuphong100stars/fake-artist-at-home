@@ -31,7 +31,8 @@ export function GameSettingScreen({ onBack }: Props) {
         <h1 className="text-xl font-bold">ตั้งค่าเกม</h1>
       </header>
 
-      <div className="flex-1 divide-y divide-border overflow-y-auto py-2">
+      {/* -mx-1 px-1: overflow-y-auto also clips overflow-x, so give rings/shadows room */}
+      <div className="-mx-1 flex-1 divide-y divide-border overflow-y-auto px-1 py-2">
         {/* faker count */}
         <SettingRow title="จำนวนตัวปลอม" desc={`สูงสุด ${maxFaker} คน (เหลือศิลปินอย่างน้อย 2)`}>
           <div className="flex items-center gap-3">

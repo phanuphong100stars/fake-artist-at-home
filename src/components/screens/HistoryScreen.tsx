@@ -65,7 +65,7 @@ export function HistoryScreen({ onBack }: { onBack: () => void }) {
           </div>
         </div>
       ) : (
-        <div className="grid flex-1 grid-cols-2 content-start gap-3 overflow-y-auto pb-2">
+        <div className="-mx-1 grid flex-1 grid-cols-2 content-start gap-3 overflow-y-auto px-1 pb-2">
           {games.map((g, i) => (
             <motion.div
               key={g.id}

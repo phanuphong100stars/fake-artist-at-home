@@ -39,7 +39,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
         <h1 className="text-xl font-bold">ตั้งค่า</h1>
       </header>
 
-      <div className="flex-1 space-y-2 overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+      <div className="-mx-1 flex-1 space-y-2 overflow-y-auto px-1 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         <Section title="การแสดงผล">
           <div className="py-3">
             <p className="mb-2 font-semibold">ธีม</p>

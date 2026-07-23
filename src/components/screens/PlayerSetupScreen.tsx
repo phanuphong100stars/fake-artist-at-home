@@ -40,7 +40,7 @@ export function PlayerSetupScreen({ onBack, onNext }: Props) {
       <p className="pb-1 text-xs text-muted">ลากไอคอน ⠿ เพื่อสลับลำดับ · ลำดับนี้ใช้วนตาวาด</p>
 
       {/* list — drag to reorder */}
-      <div className="flex-1 overflow-y-auto py-1">
+      <div className="-mx-1 flex-1 overflow-y-auto px-1 py-1">
         <Reorder.Group axis="y" values={players} onReorder={reorderPlayers} className="space-y-2.5">
           {players.map((p, i) => (
             <PlayerRow
