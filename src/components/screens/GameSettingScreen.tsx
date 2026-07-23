@@ -4,7 +4,6 @@ import { ArrowLeft, Minus, Plus, Play } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { SegmentedControl, Toggle, SettingRow } from "@/components/common/controls";
 import { BrushPicker } from "@/components/game/BrushPicker";
-import { lockLandscape } from "@/lib/orientation";
 import { useSettings } from "@/stores/settingsStore";
 import { useGame } from "@/stores/gameStore";
 import type { GameSettings } from "@/domain/types";
@@ -130,14 +129,7 @@ export function GameSettingScreen({ onBack }: Props) {
       </div>
 
       <footer className="py-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <Button
-          size="lg"
-          onClick={() => {
-            void lockLandscape(); // must run in the click gesture (Android/Chrome)
-            startGame();
-          }}
-          className="w-full"
-        >
+        <Button size="lg" onClick={startGame} className="w-full">
           <Play className="h-5 w-5" fill="currentColor" /> สุ่มบทบาท
         </Button>
       </footer>

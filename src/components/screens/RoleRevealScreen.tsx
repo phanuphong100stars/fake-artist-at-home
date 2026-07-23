@@ -7,6 +7,7 @@ import { Button } from "@/components/common/Button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useGame } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
+import { lockLandscape } from "@/lib/orientation";
 import { colorVar } from "@/lib/colors";
 
 export function RoleRevealScreen() {
@@ -236,7 +237,15 @@ function PlayerReveal({
         <AnimatePresence>
           {seen && !peeking && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <Button size="lg" onClick={onNext}>
+              <Button
+                size="lg"
+                onClick={() => {
+                  // lock landscape only as we enter the draw screen (this click
+                  // is the required user gesture); role-reveal stays portrait.
+                  if (isLast) void lockLandscape();
+                  onNext();
+                }}
+              >
                 {isLast ? "เริ่มวาด" : "ส่งต่อ"} <ArrowRight className="h-5 w-5" />
               </Button>
             </motion.div>

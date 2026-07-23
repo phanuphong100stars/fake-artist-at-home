@@ -9,6 +9,7 @@ import { DrawCanvas, type DrawCanvasHandle } from "@/components/game/DrawCanvas"
 import { PlayerLegend } from "@/components/game/PlayerLegend";
 import { useGame } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
+import { unlockOrientation } from "@/lib/orientation";
 import { colorVar } from "@/lib/colors";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,9 @@ export function DrawScreen() {
   const canvasRef = useRef<DrawCanvasHandle>(null);
   const [count, setCount] = useState(0);
   const [confirmEnd, setConfirmEnd] = useState(false);
+
+  // release the landscape lock when the draw phase ends (reveal is portrait)
+  useEffect(() => unlockOrientation, []);
 
   const current = players.find((p) => p.id === order[drawIndex]);
 
