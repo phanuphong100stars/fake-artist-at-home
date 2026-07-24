@@ -11,3 +11,12 @@ export function turnOrder(players: Player[], rng: Rng = Math.random): string[] {
   const start = randInt(n, rng);
   return Array.from({ length: n }, (_, i) => players[(start + i) % n].id);
 }
+
+/**
+ * Full draw order across all rounds: the base turn order repeated `rounds`
+ * times (each player draws once per round, same order each round).
+ */
+export function drawOrder(players: Player[], rounds: number, rng: Rng = Math.random): string[] {
+  const base = turnOrder(players, rng);
+  return Array.from({ length: Math.max(1, rounds) }, () => base).flat();
+}

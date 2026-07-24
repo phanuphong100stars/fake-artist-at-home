@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { VenetianMask, Palette, RotateCcw, BarChart3, Home, PlayCircle } from "lucide-react";
+import { VenetianMask, Palette, RotateCcw, BarChart3, Home, PlayCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { StaticCanvas } from "@/components/game/StaticCanvas";
 import { PlayerLegend } from "@/components/game/PlayerLegend";
 import { useGame, type Winner } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
+import { tallyVotes } from "@/domain/scoring";
 import { colorVar } from "@/lib/colors";
 import { fireConfetti, fireFireworks } from "@/lib/celebrate";
 import { play } from "@/lib/sound";
@@ -18,13 +19,16 @@ export function RevealScreen() {
   const deal = useGame((s) => s.deal);
   const strokes = useGame((s) => s.strokes);
   const winner = useGame((s) => s.winner);
+  const votes = useGame((s) => s.votes);
   const declareWinner = useGame((s) => s.declareWinner);
   const playAgain = useGame((s) => s.playAgain);
   const goTo = useGame((s) => s.goTo);
   const viewReplay = useGame((s) => s.viewReplay);
   const paper = useSettings((s) => s.paper);
 
+  const voted = Object.keys(votes).length > 0; // true when the winner came from in-app voting
   const [showRoles, setShowRoles] = useState(false);
+  const celebrated = useRef(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -35,11 +39,7 @@ export function RevealScreen() {
     return () => clearTimeout(t);
   }, []);
 
-  if (!deal) return null;
-  const fakers = players.filter((p) => deal.fakerIds.includes(p.id));
-
-  const pick = (w: Winner) => {
-    declareWinner(w);
+  const celebrate = (w: Winner) => {
     if (w === "normals") {
       fireConfetti();
       play("success");
@@ -49,6 +49,23 @@ export function RevealScreen() {
       play("fail");
       haptic("error");
     }
+  };
+
+  // voting path: winner is already set before we arrive — celebrate once roles show
+  useEffect(() => {
+    if (showRoles && voted && winner && !celebrated.current) {
+      celebrated.current = true;
+      celebrate(winner);
+    }
+  }, [showRoles, voted, winner]);
+
+  if (!deal) return null;
+  const fakers = players.filter((p) => deal.fakerIds.includes(p.id));
+  const caught = new Set(voted ? tallyVotes(votes).topSuspects : []);
+
+  const pick = (w: Winner) => {
+    declareWinner(w);
+    celebrate(w);
   };
 
   return (
@@ -108,6 +125,33 @@ export function RevealScreen() {
                   <p className="mt-1 text-xl font-extrabold">{deal.decoyWord}</p>
                 </div>
               </div>
+
+              {voted && (
+                <div className="mt-4 rounded-xl bg-elevated p-3 text-left">
+                  <p className="mb-2 text-center text-xs font-semibold text-muted">ผลโหวต</p>
+                  <div className="space-y-1.5">
+                    {players.map((voter) => {
+                      const suspect = players.find((p) => p.id === votes[voter.id]);
+                      return (
+                        <div key={voter.id} className="flex items-center gap-1.5 text-sm">
+                          <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colorVar(voter.color) }} />
+                          <span className="min-w-0 flex-1 truncate">{voter.name}</span>
+                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted" />
+                          {suspect && (
+                            <span className={`flex items-center gap-1 truncate ${caught.has(suspect.id) ? "font-bold" : ""}`}>
+                              <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colorVar(suspect.color) }} />
+                              {suspect.name}
+                              {caught.has(suspect.id) && deal.fakerIds.includes(suspect.id) && (
+                                <VenetianMask className="h-3.5 w-3.5 text-danger" />
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
       </div>
@@ -115,7 +159,7 @@ export function RevealScreen() {
       {/* outcome */}
       {showRoles && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          {!winner ? (
+          {!winner && !voted ? (
             <>
               <p className="mb-2 text-center text-sm font-semibold text-muted">ใครชนะรอบนี้?</p>
               <div className="grid grid-cols-2 gap-3">

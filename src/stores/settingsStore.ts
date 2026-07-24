@@ -9,6 +9,8 @@ export const DEFAULT_SETTINGS: GameSettings = {
   difficulty: "easy",
   timerEnabled: false,
   timerSeconds: 60,
+  rounds: 2,
+  votingEnabled: true,
   singleStroke: true,
   brushType: "marker",
   palmRejection: true,

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Cluster, Player, Votes } from "@/domain/types";
 import { assignRoles, clampFakerCount } from "@/domain/role";
-import { turnOrder } from "@/domain/turn";
+import { turnOrder, drawOrder } from "@/domain/turn";
 import { pickCluster, assignWords, ANTI_REPEAT_WINDOW } from "@/domain/word";
 import { resolveWin } from "@/domain/scoring";
 
@@ -118,6 +118,22 @@ describe("turnOrder", () => {
         expect((idx[i - 1] + 1) % 5).toBe(idx[i]);
       }
     }
+  });
+});
+
+describe("drawOrder", () => {
+  it("repeats the base turn order once per round; each player draws `rounds` times", () => {
+    const ps = players(4);
+    const o = drawOrder(ps, 3, seeded(5));
+    expect(o.length).toBe(12);
+    for (const p of ps) expect(o.filter((id) => id === p.id).length).toBe(3);
+    // every round is an identical repeat of round 1
+    expect(o.slice(0, 4)).toEqual(o.slice(4, 8));
+    expect(o.slice(0, 4)).toEqual(o.slice(8, 12));
+  });
+
+  it("rounds<1 is clamped to a single pass", () => {
+    expect(drawOrder(players(3), 0, seeded(1)).length).toBe(3);
   });
 });
 

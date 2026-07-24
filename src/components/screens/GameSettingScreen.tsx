@@ -102,6 +102,34 @@ export function GameSettingScreen({ onBack }: Props) {
           <Toggle label="วาดเส้นเดียว" checked={s.singleStroke} onChange={(v) => s.set("singleStroke", v)} />
         </SettingRow>
 
+        {/* draw rounds */}
+        <SettingRow title="จำนวนรอบวาด" desc={`แต่ละคนวาด ${s.rounds} รอบ`}>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => s.set("rounds", Math.max(1, s.rounds - 1) as GameSettings["rounds"])}
+              disabled={s.rounds <= 1}
+              aria-label="ลดรอบ"
+              className="grid h-9 w-9 place-items-center rounded-full bg-elevated disabled:opacity-30 active:scale-90"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <span className="w-5 text-center text-lg font-bold tabular-nums">{s.rounds}</span>
+            <button
+              onClick={() => s.set("rounds", Math.min(3, s.rounds + 1) as GameSettings["rounds"])}
+              disabled={s.rounds >= 3}
+              aria-label="เพิ่มรอบ"
+              className="grid h-9 w-9 place-items-center rounded-full bg-elevated disabled:opacity-30 active:scale-90"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+        </SettingRow>
+
+        {/* in-app voting */}
+        <SettingRow title="โหวตในแอป" desc={s.votingEnabled ? "ทุกคนโหวต แล้วแอปตัดสินผู้ชนะ" : "เลือกผู้ชนะเองตอนเฉลย"}>
+          <Toggle label="โหวตในแอป" checked={s.votingEnabled} onChange={(v) => s.set("votingEnabled", v)} />
+        </SettingRow>
+
         {/* timer */}
         <SettingRow title="จับเวลา" desc="แสดงเวลา ไม่บังคับจบเทิร์น">
           <Toggle label="จับเวลา" checked={s.timerEnabled} onChange={(v) => s.set("timerEnabled", v)} />

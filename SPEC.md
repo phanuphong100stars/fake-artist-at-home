@@ -111,6 +111,37 @@ Root cause: strokes เก็บ normalized 0..1 แต่ render ตาม aspe
 
 ---
 
+## รอบใหม่ (2026-07-24): ระบบโหวต + จำนวนรอบวาด
+
+domain พร้อมแล้ว — `scoring.ts` (`tallyVotes`/`resolveWin`) + `Votes`/`GameResult`
+มีอยู่และมี unit test ใน `tests/domain.test.ts` ครบ. งานรอบนี้ = wiring store + UI เท่านั้น.
+faker-guess phase **defer** (resolveWin ส่ง `fakerGuessCorrect=false`).
+
+### F16 — ระบบโหวตในแอป (in-app voting) — เสร็จ
+setting `votingEnabled: boolean` (default `true`). เพิ่ม phase `"vote"` คั่นระหว่าง `draw` → `reveal`.
+pass-and-play: reuse handoff แบบ `RoleRevealScreen` (gated ส่งเครื่อง กันแอบดูโหวตคนอื่น).
+- [x] toggle `votingEnabled` ใน `GameSettingScreen` (default เปิด)
+- [x] `votingEnabled=true`: วาดครบ → เข้า phase `vote` (ไม่ใช่ reveal ตรง)
+- [x] แต่ละคน (ตามลำดับ `players`) ส่งเครื่อง gated → เลือกคนที่สงสัย 1 คน (**เลือกตัวเองไม่ได้**)
+- [x] คนถัดไปมองไม่เห็นโหวตของคนก่อนหน้า (handoff แสดงแค่ชื่อ)
+- [x] โหวตครบทุกคน → `resolveWin(fakerIds, votes, fakerWinMode, realWord, false)` → set `winner` → เข้า `reveal`
+- [x] `reveal` โชว์ผู้ชนะที่คำนวณได้ + tally (ใครโหวตใคร / mask ที่ faker โดนจับ); ซ่อนปุ่มเลือกผู้ชนะเอง
+- [x] `votingEnabled=false`: flow เดิมทุกอย่าง (ปุ่ม "ใครชนะ?" เลือกเอง) — fallback (`!winner && !voted`)
+- [x] stats + history record `winner` เหมือนเดิม (castVote เรียก `declareWinner` เดิม)
+- [x] persist: `votes`, `voteIndex` อยู่ใน partialize
+
+### F17 — ตั้งจำนวนรอบวาดได้ (configurable draw rounds) — เสร็จ
+setting `rounds: 1 | 2 | 3` (default `2` = กติกามาตรฐาน; เดิมพฤติกรรม = 1 รอบ).
+`order` = `drawOrder(players, rounds)` = base turn order ซ้ำ `rounds` ครั้ง — logic `commitTurn`/`isLast` เดิมใช้ `order.length` ได้เลย.
+- [x] stepper `rounds` (1–3) ใน `GameSettingScreen`
+- [x] `rounds=2` → `order.length === players.length * 2`, แต่ละคนได้วาด 2 ตา (unit test `drawOrder`)
+- [x] ลำดับ: รอบ 1 ครบทุกคนก่อน แล้วรอบ 2 (turnOrder เดิมซ้ำ ไม่สุ่มใหม่)
+- [x] `DrawScreen` โชว์ "รอบ r/R" (derive จาก `drawIndex / players.length`)
+- [x] จบเกมเมื่อครบทุกตา (`players * rounds`); replay เรียงถูก (`committedAt = drawIndex` unique ต่อตา)
+- [x] persisted settings เก่าไม่มี `rounds` → fallback `2` (zustand persist merge default)
+
+---
+
 ## 3. Commands
 
 ```bash

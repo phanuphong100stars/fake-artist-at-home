@@ -34,6 +34,8 @@ export function DrawScreen() {
 
   if (!current) return null;
   const isLast = drawIndex === order.length - 1;
+  const totalRounds = players.length ? Math.ceil(order.length / players.length) : 1;
+  const round = Math.floor(drawIndex / players.length) + 1;
 
   const commit = () => commitTurn(canvasRef.current?.getStrokes() ?? []);
   const done = () => (isLast ? setConfirmEnd(true) : commit());
@@ -53,7 +55,9 @@ export function DrawScreen() {
           <div className="flex items-center gap-2">
             <span className="h-4 w-4 shrink-0 rounded-full ring-2 ring-white/60" style={{ backgroundColor: colorVar(current.color) }} />
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] leading-none text-muted">ตาที่ {drawIndex + 1}/{order.length}</p>
+              <p className="text-[11px] leading-none text-muted">
+                {totalRounds > 1 && <>รอบ {round}/{totalRounds} · </>}ตาที่ {drawIndex + 1}/{order.length}
+              </p>
               <h1 className="truncate text-base font-bold leading-tight">{current.name}</h1>
             </div>
           </div>
@@ -148,15 +152,15 @@ export function DrawScreen() {
           className="w-full px-2"
         >
           {isLast ? <Flag className="h-5 w-5" /> : <Check className="h-5 w-5" />}
-          {isLast ? "เฉลย" : "ส่งต่อ"}
+          {isLast ? (s.votingEnabled ? "ไปโหวต" : "เฉลย") : "ส่งต่อ"}
         </Button>
       </div>
 
       <ConfirmDialog
         open={confirmEnd}
-        title="จบเกมและเฉลย?"
-        description="ทุกคนวาดครบแล้ว พร้อมเปิดเผยว่าใครคือตัวปลอม"
-        confirmLabel="เฉลยเลย"
+        title={s.votingEnabled ? "จบการวาดและไปโหวต?" : "จบเกมและเฉลย?"}
+        description={s.votingEnabled ? "ทุกคนวาดครบแล้ว ผลัดกันโหวตว่าใครคือตัวปลอม" : "ทุกคนวาดครบแล้ว พร้อมเปิดเผยว่าใครคือตัวปลอม"}
+        confirmLabel={s.votingEnabled ? "ไปโหวต" : "เฉลยเลย"}
         cancelLabel="ยังก่อน"
         onConfirm={() => {
           setConfirmEnd(false);
