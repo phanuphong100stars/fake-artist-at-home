@@ -10,6 +10,7 @@ import { GameSettingScreen } from "@/components/screens/GameSettingScreen";
 import { RoleRevealScreen } from "@/components/screens/RoleRevealScreen";
 import { DrawScreen } from "@/components/screens/DrawScreen";
 import { ForceLandscape } from "@/components/game/ForceLandscape";
+import { VoteScreen } from "@/components/screens/VoteScreen";
 import { RevealScreen } from "@/components/screens/RevealScreen";
 import { StatisticsScreen } from "@/components/screens/StatisticsScreen";
 import { ReplayScreen } from "@/components/screens/ReplayScreen";
@@ -98,6 +99,7 @@ export function GameShell() {
               <DrawScreen />
             </ForceLandscape>
           )}
+          {phase === "vote" && <VoteScreen />}
           {phase === "reveal" && <RevealScreen />}
           {phase === "replay" && (
             <ReplayScreen onBack={() => goTo(replayRecord ? "history" : "reveal")} />

@@ -65,6 +65,8 @@ export interface GameSettings {
   difficulty: "easy" | "easyMedium";
   timerEnabled: boolean;
   timerSeconds: 10 | 20 | 30 | 45 | 60 | 90 | 120;
+  rounds: 1 | 2 | 3; // how many times each player draws (turn order repeats)
+  votingEnabled: boolean; // true = in-app secret vote tallies the winner; false = human declares
   singleStroke: boolean;
   brushType: BrushType; // paint texture used when drawing
   palmRejection: boolean; // force pen/mouse-only (ignore touch) — tablet + stylus
