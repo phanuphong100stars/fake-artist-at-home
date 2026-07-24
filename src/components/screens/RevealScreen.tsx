@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { VenetianMask, Palette, RotateCcw, BarChart3, Home, PlayCircle, ArrowRight } from "lucide-react";
+import { VenetianMask, Palette, RotateCcw, BarChart3, Home, PlayCircle } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { StaticCanvas } from "@/components/game/StaticCanvas";
 import { PlayerLegend } from "@/components/game/PlayerLegend";
 import { useGame, type Winner } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
-import { tallyVotes } from "@/domain/scoring";
 import { colorVar } from "@/lib/colors";
 import { fireConfetti, fireFireworks } from "@/lib/celebrate";
 import { play } from "@/lib/sound";
@@ -19,14 +18,14 @@ export function RevealScreen() {
   const deal = useGame((s) => s.deal);
   const strokes = useGame((s) => s.strokes);
   const winner = useGame((s) => s.winner);
-  const votes = useGame((s) => s.votes);
+  const accusedId = useGame((s) => s.accusedId);
   const declareWinner = useGame((s) => s.declareWinner);
   const playAgain = useGame((s) => s.playAgain);
   const goTo = useGame((s) => s.goTo);
   const viewReplay = useGame((s) => s.viewReplay);
   const paper = useSettings((s) => s.paper);
 
-  const voted = Object.keys(votes).length > 0; // true when the winner came from in-app voting
+  const voted = accusedId != null; // true when the winner came from an in-app group vote
   const [showRoles, setShowRoles] = useState(false);
   const celebrated = useRef(false);
 
@@ -61,7 +60,8 @@ export function RevealScreen() {
 
   if (!deal) return null;
   const fakers = players.filter((p) => deal.fakerIds.includes(p.id));
-  const caught = new Set(voted ? tallyVotes(votes).topSuspects : []);
+  const accused = players.find((p) => p.id === accusedId);
+  const accusedIsFaker = accused ? deal.fakerIds.includes(accused.id) : false;
 
   const pick = (w: Winner) => {
     declareWinner(w);
@@ -126,29 +126,15 @@ export function RevealScreen() {
                 </div>
               </div>
 
-              {voted && (
-                <div className="mt-4 rounded-xl bg-elevated p-3 text-left">
-                  <p className="mb-2 text-center text-xs font-semibold text-muted">ผลโหวต</p>
-                  <div className="space-y-1.5">
-                    {players.map((voter) => {
-                      const suspect = players.find((p) => p.id === votes[voter.id]);
-                      return (
-                        <div key={voter.id} className="flex items-center gap-1.5 text-sm">
-                          <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colorVar(voter.color) }} />
-                          <span className="min-w-0 flex-1 truncate">{voter.name}</span>
-                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted" />
-                          {suspect && (
-                            <span className={`flex items-center gap-1 truncate ${caught.has(suspect.id) ? "font-bold" : ""}`}>
-                              <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colorVar(suspect.color) }} />
-                              {suspect.name}
-                              {caught.has(suspect.id) && deal.fakerIds.includes(suspect.id) && (
-                                <VenetianMask className="h-3.5 w-3.5 text-danger" />
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
+              {accused && (
+                <div className="mt-4 rounded-xl bg-elevated p-3">
+                  <p className="mb-2 text-xs font-semibold text-muted">กลุ่มโหวตให้</p>
+                  <div className="flex items-center justify-center gap-2 text-lg font-bold">
+                    <span className="h-4 w-4 rounded-full" style={{ backgroundColor: colorVar(accused.color) }} />
+                    {accused.name}
+                    <span className={accusedIsFaker ? "text-danger" : "text-muted"}>
+                      {accusedIsFaker ? "— จับถูก! 🎯" : "— ไม่ใช่ตัวปลอม"}
+                    </span>
                   </div>
                 </div>
               )}

@@ -119,16 +119,15 @@ faker-guess phase **defer** (resolveWin ส่ง `fakerGuessCorrect=false`).
 
 ### F16 — ระบบโหวตในแอป (in-app voting) — เสร็จ
 setting `votingEnabled: boolean` (default `true`). เพิ่ม phase `"vote"` คั่นระหว่าง `draw` → `reveal`.
-pass-and-play: reuse handoff แบบ `RoleRevealScreen` (gated ส่งเครื่อง กันแอบดูโหวตคนอื่น).
+**โมเดล: กลุ่มโหวตร่วมกัน** — จอเดียว list ทุกคน คุยกันจริงแล้วจิ้มเลือก 1 คน (ไม่วนส่งมือถือ).
 - [x] toggle `votingEnabled` ใน `GameSettingScreen` (default เปิด)
 - [x] `votingEnabled=true`: วาดครบ → เข้า phase `vote` (ไม่ใช่ reveal ตรง)
-- [x] แต่ละคน (ตามลำดับ `players`) ส่งเครื่อง gated → เลือกคนที่สงสัย 1 คน (**เลือกตัวเองไม่ได้**)
-- [x] คนถัดไปมองไม่เห็นโหวตของคนก่อนหน้า (handoff แสดงแค่ชื่อ)
-- [x] โหวตครบทุกคน → `resolveWin(fakerIds, votes, fakerWinMode, realWord, false)` → set `winner` → เข้า `reveal`
-- [x] `reveal` โชว์ผู้ชนะที่คำนวณได้ + tally (ใครโหวตใคร / mask ที่ faker โดนจับ); ซ่อนปุ่มเลือกผู้ชนะเอง
+- [x] `VoteScreen` list ผู้เล่นทุกคน → เลือก 1 คน → กด "เฉลย"
+- [x] `accuse(suspectId)` → `resolveWin(fakerIds, { verdict: suspectId }, fakerWinMode, realWord, false)` → set `winner` → `reveal`
+- [x] `reveal` โชว์ผู้ชนะ + "กลุ่มโหวตให้ [ชื่อ] — จับถูก/ไม่ใช่ตัวปลอม"; ซ่อนปุ่มเลือกผู้ชนะเอง
 - [x] `votingEnabled=false`: flow เดิมทุกอย่าง (ปุ่ม "ใครชนะ?" เลือกเอง) — fallback (`!winner && !voted`)
-- [x] stats + history record `winner` เหมือนเดิม (castVote เรียก `declareWinner` เดิม)
-- [x] persist: `votes`, `voteIndex` อยู่ใน partialize
+- [x] stats + history record `winner` เหมือนเดิม (accuse เรียก `declareWinner` เดิม)
+- [x] persist: `accusedId` อยู่ใน partialize
 
 ### F17 — ตั้งจำนวนรอบวาดได้ (configurable draw rounds) — เสร็จ
 setting `rounds: 1 | 2 | 3` (default `2` = กติกามาตรฐาน; เดิมพฤติกรรม = 1 รอบ).
