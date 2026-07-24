@@ -29,7 +29,7 @@ export function RoleRevealScreen() {
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-hidden px-6">
       {/* top bar: progress dots + change-word */}
-      <div className="z-10 flex w-full items-center justify-between pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <div className="z-10 flex w-full items-center justify-between pr-14 pt-[max(1.5rem,env(safe-area-inset-top))]">
         <div className="flex gap-2">
           {players.map((p, i) => (
             <span
@@ -166,7 +166,7 @@ function PlayerReveal({
                 animate={{ rotateY: 0, opacity: 1 }}
                 exit={{ rotateY: -90, opacity: 0 }}
                 transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
-                className="relative flex h-full w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl p-6 text-white shadow-float ring-2 ring-danger"
+                className="vg-panel relative flex h-full w-full flex-col items-center justify-center gap-3 overflow-hidden p-6 text-white ring-2 ring-danger"
                 style={{ background: "linear-gradient(155deg, #2b1116 0%, #46101a 55%, #7a1220 100%)" }}
               >
                 {/* bold role badge — unmistakable */}
@@ -202,7 +202,7 @@ function PlayerReveal({
                 animate={{ rotateY: 0, opacity: 1 }}
                 exit={{ rotateY: -90, opacity: 0 }}
                 transition={{ duration: 0.25, ease: [0.25, 1, 0.5, 1] }}
-                className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl bg-surface p-6 text-foreground shadow-float ring-2 ring-success/40"
+                className="vg-panel flex h-full w-full flex-col items-center justify-center gap-3 bg-surface p-6 text-foreground ring-2 ring-success/40"
               >
                 <span className="flex items-center gap-2 rounded-full bg-success/15 px-4 py-1.5 text-sm font-bold text-success">
                   <Palette className="h-5 w-5" /> ศิลปินตัวจริง
@@ -220,7 +220,7 @@ function PlayerReveal({
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border-strong bg-surface"
+              className="vg-panel flex h-full w-full flex-col items-center justify-center gap-3 border-2 border-dashed border-border-strong bg-surface"
             >
               <Eye className="h-9 w-9 text-muted" />
               <p className="font-semibold">{seen ? "แตะค้างเพื่อดูอีกครั้ง" : "แตะค้างเพื่อดูบทบาท"}</p>

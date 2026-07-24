@@ -215,6 +215,15 @@ screens: `HomeScreen` (refactor เป็น shared), `PlayerSetupScreen`, `Role
 - [x] ไม่แตะ `DrawCanvas`; ไม่เพิ่ม dependency; ลบของ F18 ที่ไม่ใช้ (PaintDefs/PaintBlobs/paint-fill)
 - [x] `tests/visual/paint.mjs`: impasto+sky, light theme shot, exit flow, high-contrast flatten — ผ่าน
 
+### F20.1 — จูนให้ตรง mockup 100% (ปุ่ม/ฟอนต์/ไอคอน/การ์ด/โลโก้)
+- [x] ปุ่มหนาขึ้น (เดิมเรียบ): brush-streak + cross-hatch + sheen + สันสีนูน (ridge สีเดียวกับปุ่ม) + grain ::after + ขอบหยาบ `#paint-rough`. secondary ใช้ `--brand-2` (cobalt night / ochre day) แทน surface
+- [x] ฟอนต์ art: `Charmonman` (brush script ไทย) จาก next/font ใส่หัวข้อ (`h1`,`.vg-title`); body คง Noto
+- [x] ไอคอน lucide ขอบวาดมือ `#paint-rough-sm` (ปุ่มไม่ซ้อน filter — null ใน `.impasto .lucide`)
+- [x] `.vg-panel` + grain กับทุก panel (`bg-surface/elevated/brand-soft`) = การ์ด role/word + ทุกจอแนวเดียวกัน (rule เดียว)
+- [x] logo = squircle สี `--brand` (ทองมืด/cobalt สว่าง) + face `--brand-fg`, ขอบ impasto; favicon `icon.svg` = Starry Night mark; theme_color/manifest ปรับตาม
+- [x] fix: ปุ่มออกจากเกม (มุมขวาบน) ทับปุ่ม "เปลี่ยนคำ" ใน roleReveal → เพิ่ม `pr-14` ให้ top bar
+- [x] a11y: high-contrast ปิด grain/filter/impasto เป็น solid; reduceMotion หยุด swirl; ไม่เพิ่ม runtime dep
+
 ---
 
 ## 3. Commands

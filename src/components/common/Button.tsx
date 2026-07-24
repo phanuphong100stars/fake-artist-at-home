@@ -9,13 +9,20 @@ import { play } from "@/lib/sound";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
-// `impasto` (globals.css) paints the thick-oil sheen, raised edge + irregular
-// radius; the colour comes from the bg-* token. ghost stays flat.
+// `impasto` (globals.css) paints the thick-oil look; its colour comes from the
+// --btn custom property + text colour, set per variant below. ghost stays flat.
 const variants: Record<Variant, string> = {
-  primary: "bg-brand text-brand-fg impasto",
-  secondary: "bg-surface text-foreground impasto",
+  primary: "impasto",
+  secondary: "impasto",
   ghost: "text-foreground hover:bg-elevated",
-  danger: "bg-danger text-white impasto",
+  danger: "impasto",
+};
+
+// paint colour (--btn) + label colour per painted variant
+const paint: Partial<Record<Variant, { btn: string; fg: string }>> = {
+  primary: { btn: "var(--brand)", fg: "var(--brand-fg)" },
+  secondary: { btn: "var(--brand-2)", fg: "var(--brand-2-fg)" },
+  danger: { btn: "var(--danger)", fg: "#fff" },
 };
 
 const sizes: Record<Size, string> = {
@@ -38,14 +45,16 @@ interface Ripple {
 let rippleSeq = 0;
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", onClick, onPointerDown, children, ...props }, ref) => {
+  ({ className, variant = "primary", size = "md", onClick, onPointerDown, style, children, ...props }, ref) => {
     const [ripples, setRipples] = useState<Ripple[]>([]);
+    const p = paint[variant];
 
     return (
       <motion.button
         ref={ref}
         whileTap={{ scale: 0.96 }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        style={p ? { ["--btn" as string]: p.btn, color: p.fg, ...style } : style}
         onPointerDown={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const size = Math.max(rect.width, rect.height) * 1.6;

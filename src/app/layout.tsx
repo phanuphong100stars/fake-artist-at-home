@@ -1,12 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_Thai } from "next/font/google";
+import { Noto_Sans_Thai, Charmonman } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "@/components/PWARegister";
+import { PaintDefs } from "@/components/common/PaintDefs";
 
 const notoThai = Noto_Sans_Thai({
   variable: "--font-thai",
   subsets: ["thai", "latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
+// expressive brush/handwriting Thai display face for headings (Van Gogh feel)
+const displayThai = Charmonman({
+  variable: "--font-display",
+  subsets: ["thai", "latin"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -20,8 +29,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfbf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#2a2b31" },
+    { media: "(prefers-color-scheme: light)", color: "#f2e4ad" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1330" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -34,8 +43,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="th" suppressHydrationWarning className={`${notoThai.variable} h-full`}>
+    <html lang="th" suppressHydrationWarning className={`${notoThai.variable} ${displayThai.variable} h-full`}>
       <body className="min-h-full antialiased">
+        <PaintDefs />
         {children}
         <PWARegister />
       </body>
