@@ -161,7 +161,7 @@ function PlayerRow({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="grid grid-cols-6 gap-2 pt-3">
+            <div className="grid grid-cols-6 gap-2 px-1 pb-1 pt-3">
               {ALL_COLORS.map((c) => (
                 <ColorSwatch
                   key={c}
