@@ -27,17 +27,20 @@ export function GameShell() {
   const reduceMotion = useSettings((s) => s.reduceMotion);
   const animationSpeed = useSettings((s) => s.animationSpeed);
 
-  // Go fullscreen on the first tap (fullscreen needs a user gesture, so it
-  // can't fire on load). No-ops on iOS Safari, which lacks the fullscreen API.
+  // Go fullscreen as early as possible. Try on mount — works in PWA/standalone
+  // where no gesture is required; plain browser tabs reject that (fullscreen
+  // needs a user gesture) so we also arm the first tap as a fallback. No-ops on
+  // iOS Safari, which lacks the fullscreen API.
   useEffect(() => {
-    const onFirstTap = () => {
+    const enter = () => {
       const el = document.documentElement;
       if (el.requestFullscreen && !document.fullscreenElement) {
         el.requestFullscreen().catch(() => {});
       }
     };
-    window.addEventListener("pointerdown", onFirstTap, { once: true });
-    return () => window.removeEventListener("pointerdown", onFirstTap);
+    enter();
+    window.addEventListener("pointerdown", enter, { once: true });
+    return () => window.removeEventListener("pointerdown", enter);
   }, []);
 
   // Map each phase onto a browser history entry so the device/browser Back
