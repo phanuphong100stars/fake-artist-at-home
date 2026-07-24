@@ -205,6 +205,16 @@ screens: `HomeScreen` (refactor เป็น shared), `PlayerSetupScreen`, `Role
 - [ ] painted skin เดียวกับ F18, ทำงานร่วม back-button (F12) ไม่พัง history stack
 - [ ] landscape `DrawScreen` ปุ่มยังอยู่มุมบนขวาถูกตำแหน่ง
 
+### F20 — รีดีไซน์เต็มแนวแวนโก๊ะ (แทนที่ F18) — เสร็จ
+ยกเครื่องผิวทั้งแอปเป็นสีน้ำมันแวนโก๊ะ. **ทำผ่าน token + global bg + Button** จุดเดียวคุมทุกจอ.
+- [x] Palette pivot ใน `globals.css`: light = **Sunflowers** (พื้นทอง accent cobalt), dark = **Starry Night** (พื้น indigo accent chrome-yellow). คง token name เดิม (ทุกจอเปลี่ยนสีฟรี). player p1–p20 ไม่แตะ
+- [x] `PaintSky` global: ท้องฟ้าหมุนวน (conic swirls + moon/sun glow + oil grain) fixed z-0 หลัง content (z-10); สีจาก `--sky-*` ต่อธีม
+- [x] `Button` = impasto: sheen gradient + ขอบสีนูน (box-shadow) + radius เบี้ยว + กดยุบ; สีจาก bg-* token; ghost แบน
+- [x] `.vg-title` emboss สีนูนบนหัวข้อ hero (home)
+- [x] a11y: high-contrast ซ่อน sky + impasto เป็น solid+border; reduceMotion หยุด swirl (rule เดิม `data-reduce-motion`); colorblind/largeFont ไม่กระทบ
+- [x] ไม่แตะ `DrawCanvas`; ไม่เพิ่ม dependency; ลบของ F18 ที่ไม่ใช้ (PaintDefs/PaintBlobs/paint-fill)
+- [x] `tests/visual/paint.mjs`: impasto+sky, light theme shot, exit flow, high-contrast flatten — ผ่าน
+
 ---
 
 ## 3. Commands

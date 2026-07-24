@@ -52,86 +52,110 @@
   --color-p20: #9f1239;  /* crimson */
 }
 
-/* -------- light theme (warm paper) -------- */
+/* =======================================================================
+   Van Gogh palette. Light theme = "Sunflowers" (golden day, cobalt accent);
+   dark theme = "Starry Night" (indigo night, chrome-yellow accent). The two
+   app themes are two real paintings. Sky vars drive the swirling background.
+   ======================================================================= */
+
+/* -------- light: Sunflowers / day -------- */
 :root {
-  --background: oklch(0.985 0.004 90);
-  --surface: oklch(1 0 0);
-  --elevated: oklch(1 0 0);
-  --foreground: oklch(0.22 0.01 260);
-  --muted: oklch(0.55 0.015 260);
-  --border: oklch(0.90 0.006 260);
-  --border-strong: oklch(0.83 0.01 260);
+  --background: #f2e4ad;
+  --surface: #fbf4dc;
+  --elevated: #fdf8e8;
+  --foreground: #3a2c12;
+  --muted: #7a6431;
+  --border: #ddc888;
+  --border-strong: #c3a95c;
 
-  --brand: oklch(0.64 0.19 28);        /* confident coral — the paint accent */
-  --brand-fg: oklch(0.99 0.01 40);
-  --brand-soft: oklch(0.95 0.03 30);
+  --brand: #274786;          /* cobalt — the pop against gold */
+  --brand-fg: #f6ecc9;
+  --brand-soft: #dde5f4;
 
-  --success: oklch(0.62 0.16 150);
-  --danger: oklch(0.60 0.21 25);
-  --warning: oklch(0.75 0.15 75);
+  --success: #5c7a2e;
+  --danger: #c0392b;
+  --warning: #d98324;
 
-  --ring: oklch(0.64 0.19 28 / 0.45);
-  --shadow-color: 260 30% 20%;
+  --ring: rgb(39 71 134 / 0.45);
+  --shadow-color: 36 45% 30%;
+
+  --sky-a: #c07a1e;
+  --sky-b: #8a5a12;
+  --sky-glow: #ffcf5a;
+  --sky-blend: multiply;
 }
 
-/* -------- dark theme (deep near-black) -------- */
+/* -------- dark: Starry Night -------- */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.17 0.006 265);
-    --surface: oklch(0.21 0.008 265);
-    --elevated: oklch(0.25 0.01 265);
-    --foreground: oklch(0.96 0.004 260);
-    --muted: oklch(0.68 0.015 260);
-    --border: oklch(0.30 0.01 265);
-    --border-strong: oklch(0.40 0.012 265);
+    --background: #0b1330;
+    --surface: #14224c;
+    --elevated: #1c2f63;
+    --foreground: #f4eccf;
+    --muted: #a6b6d6;
+    --border: #273a68;
+    --border-strong: #3c5590;
 
-    --brand: oklch(0.70 0.18 30);
-    --brand-fg: oklch(0.17 0.02 30);
-    --brand-soft: oklch(0.30 0.06 30);
+    --brand: #f2c14e;        /* chrome yellow — stars & primary paint */
+    --brand-fg: #2a1c02;
+    --brand-soft: #2e2a10;
 
-    --success: oklch(0.72 0.16 150);
-    --danger: oklch(0.68 0.20 25);
-    --warning: oklch(0.80 0.15 80);
+    --success: #9bb84a;
+    --danger: #e05744;
+    --warning: #e8a021;
 
-    --ring: oklch(0.70 0.18 30 / 0.5);
-    --shadow-color: 265 50% 3%;
+    --ring: rgb(242 193 78 / 0.5);
+    --shadow-color: 230 60% 3%;
+
+    --sky-a: #4f79c4;
+    --sky-b: #2e4f95;
+    --sky-glow: #f2c14e;
+    --sky-blend: screen;
   }
 }
 
 /* explicit theme override wins over system pref (toggle stamps data-theme) */
 :root[data-theme="light"] {
-  --background: oklch(0.985 0.004 90);
-  --surface: oklch(1 0 0);
-  --elevated: oklch(1 0 0);
-  --foreground: oklch(0.22 0.01 260);
-  --muted: oklch(0.55 0.015 260);
-  --border: oklch(0.90 0.006 260);
-  --border-strong: oklch(0.83 0.01 260);
-  --brand: oklch(0.64 0.19 28);
-  --brand-fg: oklch(0.99 0.01 40);
-  --brand-soft: oklch(0.95 0.03 30);
-  --success: oklch(0.62 0.16 150);
-  --danger: oklch(0.60 0.21 25);
-  --warning: oklch(0.75 0.15 75);
-  --ring: oklch(0.64 0.19 28 / 0.45);
-  --shadow-color: 260 30% 20%;
+  --background: #f2e4ad;
+  --surface: #fbf4dc;
+  --elevated: #fdf8e8;
+  --foreground: #3a2c12;
+  --muted: #7a6431;
+  --border: #ddc888;
+  --border-strong: #c3a95c;
+  --brand: #274786;
+  --brand-fg: #f6ecc9;
+  --brand-soft: #dde5f4;
+  --success: #5c7a2e;
+  --danger: #c0392b;
+  --warning: #d98324;
+  --ring: rgb(39 71 134 / 0.45);
+  --shadow-color: 36 45% 30%;
+  --sky-a: #c07a1e;
+  --sky-b: #8a5a12;
+  --sky-glow: #ffcf5a;
+  --sky-blend: multiply;
 }
 :root[data-theme="dark"] {
-  --background: oklch(0.17 0.006 265);
-  --surface: oklch(0.21 0.008 265);
-  --elevated: oklch(0.25 0.01 265);
-  --foreground: oklch(0.96 0.004 260);
-  --muted: oklch(0.68 0.015 260);
-  --border: oklch(0.30 0.01 265);
-  --border-strong: oklch(0.40 0.012 265);
-  --brand: oklch(0.70 0.18 30);
-  --brand-fg: oklch(0.17 0.02 30);
-  --brand-soft: oklch(0.30 0.06 30);
-  --success: oklch(0.72 0.16 150);
-  --danger: oklch(0.68 0.20 25);
-  --warning: oklch(0.80 0.15 80);
-  --ring: oklch(0.70 0.18 30 / 0.5);
-  --shadow-color: 265 50% 3%;
+  --background: #0b1330;
+  --surface: #14224c;
+  --elevated: #1c2f63;
+  --foreground: #f4eccf;
+  --muted: #a6b6d6;
+  --border: #273a68;
+  --border-strong: #3c5590;
+  --brand: #f2c14e;
+  --brand-fg: #2a1c02;
+  --brand-soft: #2e2a10;
+  --success: #9bb84a;
+  --danger: #e05744;
+  --warning: #e8a021;
+  --ring: rgb(242 193 78 / 0.5);
+  --shadow-color: 230 60% 3%;
+  --sky-a: #4f79c4;
+  --sky-b: #2e4f95;
+  --sky-glow: #f2c14e;
+  --sky-blend: screen;
 }
 
 /* map to tailwind color tokens */
@@ -166,11 +190,9 @@ html {
 }
 body {
   min-height: 100%;
-  /* canvas/paper tooth — desaturated noise blended gently into the bg so it
-     reads as texture on both light & dark (soft-light of ~mid-grey ≈ subtle). */
+  /* solid fallback — the painterly sky (.vg-sky) is painted on top by PaintSky,
+     except in high-contrast where the sky is hidden and this shows through. */
   background-color: var(--background);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-blend-mode: soft-light;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -196,18 +218,74 @@ button, [role="button"], .no-select {
   touch-action: manipulation;
 }
 
-/* painted brush-swipe edge — warps a solid shape via the shared SVG filter */
-.paint-fill {
-  filter: url(#paint-rough);
+/* ---- Van Gogh swirling sky (fixed, behind all screen content) ---- */
+.vg-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--background);
+}
+.vg-swirl {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(18px);
+  mix-blend-mode: var(--sky-blend);
+  opacity: 0.5;
+  animation: vg-drift 32s ease-in-out infinite alternate;
+}
+.vg-swirl.s1 { width: 150%; height: 46%; left: -25%; top: 0%;
+  background: conic-gradient(from 200deg at 60% 50%, transparent, var(--sky-a) 20%, transparent 44%, var(--sky-glow) 64%, transparent 82%); }
+.vg-swirl.s2 { width: 130%; height: 40%; left: -15%; top: 26%; animation-duration: 42s;
+  background: conic-gradient(from 20deg at 40% 50%, transparent, var(--sky-b) 25%, transparent 58%, var(--sky-a) 78%, transparent); }
+.vg-swirl.s3 { width: 110%; height: 44%; right: -20%; bottom: -6%; animation-duration: 38s;
+  background: conic-gradient(from 300deg at 50% 50%, transparent, var(--sky-b) 22%, transparent 50%, var(--sky-a) 74%, transparent); }
+@keyframes vg-drift { from { transform: rotate(-8deg) translateX(-2%); } to { transform: rotate(9deg) translateX(3%); } }
+.vg-moon {
+  position: absolute; top: 7%; right: 12%; width: 88px; height: 88px; border-radius: 50%;
+  background: radial-gradient(circle at 42% 40%, color-mix(in srgb, var(--sky-glow) 70%, #fff), var(--sky-glow) 58%, transparent 74%);
+  box-shadow: 0 0 60px 16px color-mix(in srgb, var(--sky-glow) 45%, transparent),
+              0 0 130px 50px color-mix(in srgb, var(--sky-glow) 22%, transparent);
+  opacity: 0.9;
+}
+.vg-oil {
+  position: absolute; inset: 0; mix-blend-mode: overlay; opacity: 0.42;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='o'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23o)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
 }
 
-/* high-contrast: drop the painterly texture/roughness for crisp, solid UI */
-:root[data-high-contrast] body {
+/* ---- impasto (thick oil paint) buttons — colour comes from bg-* token ---- */
+.impasto {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.22), rgb(255 255 255 / 0) 42%, rgb(0 0 0 / 0.16));
+  border-radius: 17px 20px 16px 21px;
+  box-shadow:
+    0 5px 0 -1px rgb(0 0 0 / 0.32),
+    0 12px 20px -10px rgb(0 0 0 / 0.55),
+    inset 0 2px 1px rgb(255 255 255 / 0.4),
+    inset 0 -5px 8px rgb(0 0 0 / 0.18);
+}
+.impasto:active {
+  box-shadow:
+    0 2px 0 -1px rgb(0 0 0 / 0.32),
+    0 6px 12px -8px rgb(0 0 0 / 0.55),
+    inset 0 2px 1px rgb(255 255 255 / 0.4);
+}
+
+/* painted emboss for hero titles */
+.vg-title {
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.22), 0 2px 5px rgb(0 0 0 / 0.35), 0 0 1px rgb(255 255 255 / 0.3);
+}
+
+/* high-contrast: drop the painterly layers for crisp, solid UI */
+:root[data-high-contrast] .vg-sky { display: none; }
+:root[data-high-contrast] .impasto {
   background-image: none;
+  box-shadow: none;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--foreground);
 }
-:root[data-high-contrast] .paint-fill {
-  filter: none;
-}
+:root[data-high-contrast] .vg-title { text-shadow: none; }
 
 /* accessible focus ring */
 :focus-visible {

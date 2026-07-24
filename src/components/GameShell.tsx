@@ -19,6 +19,7 @@ import { SettingsScreen } from "@/components/screens/SettingsScreen";
 import { CustomWordsScreen } from "@/components/screens/CustomWordsScreen";
 import { HowToPlayScreen } from "@/components/screens/HowToPlayScreen";
 import { ExitButton } from "@/components/common/ExitButton";
+import { PaintSky } from "@/components/common/PaintSky";
 import { useGame } from "@/stores/gameStore";
 
 export function GameShell() {
@@ -77,9 +78,10 @@ export function GameShell() {
   return (
     <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
       <ThemeApplier />
+      <PaintSky />
       <ExitButton />
       <AnimatePresence mode="wait">
-        <motion.div key={phase} {...pageTransition}>
+        <motion.div key={phase} className="relative z-10" {...pageTransition}>
           {phase === "home" && (
             <HomeScreen
               onStart={() => goTo("setup")}

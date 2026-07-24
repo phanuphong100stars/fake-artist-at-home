@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Eye, Palette, VenetianMask, ArrowRight, Hand, RefreshCw } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
-import { PaintBlobs } from "@/components/common/PaintBlobs";
 import { useGame } from "@/stores/gameStore";
 import { useSettings } from "@/stores/settingsStore";
 import { lockLandscape } from "@/lib/orientation";
@@ -29,7 +28,6 @@ export function RoleRevealScreen() {
 
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-hidden px-6">
-      <PaintBlobs />
       {/* top bar: progress dots + change-word */}
       <div className="z-10 flex w-full items-center justify-between pt-[max(1.5rem,env(safe-area-inset-top))]">
         <div className="flex gap-2">

@@ -9,21 +9,13 @@ import { play } from "@/lib/sound";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
-// button-level classes (text + depth); the fill+color moves to a filtered
-// paint layer so the shape reads as a hand-painted brush swipe.
+// `impasto` (globals.css) paints the thick-oil sheen, raised edge + irregular
+// radius; the colour comes from the bg-* token. ghost stays flat.
 const variants: Record<Variant, string> = {
-  primary: "text-brand-fg shadow-card",
-  secondary: "text-foreground shadow-card",
+  primary: "bg-brand text-brand-fg impasto",
+  secondary: "bg-surface text-foreground impasto",
   ghost: "text-foreground hover:bg-elevated",
-  danger: "text-white",
-};
-
-// the painted layer per variant (null = no fill, e.g. ghost stays plain)
-const fills: Record<Variant, string | null> = {
-  primary: "bg-brand",
-  secondary: "bg-surface border border-border-strong",
-  ghost: null,
-  danger: "bg-danger",
+  danger: "bg-danger text-white impasto",
 };
 
 const sizes: Record<Size, string> = {
@@ -76,16 +68,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        {fills[variant] && (
-          <span
-            aria-hidden
-            className={cn(
-              // inset < displacement so the warped edge never hits the clip box
-              "paint-fill pointer-events-none absolute inset-[6px] rounded-[inherit]",
-              fills[variant]!,
-            )}
-          />
-        )}
         <AnimatePresence>
           {ripples.map((r) => (
             <motion.span

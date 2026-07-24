@@ -5,12 +5,18 @@ const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceSc
 const page = await ctx.newPage();
 await page.goto("http://localhost:3000", { waitUntil: "networkidle" });
 
-// F18.1 painted buttons rendered + F18.2 paper texture on body
-const paintLayers = await page.locator(".paint-fill").count();
-const bodyBg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage);
-console.log("paint-fill layers on home:", paintLayers, paintLayers > 0 ? "OK" : "FAIL");
-console.log("paper texture:", /svg/.test(bodyBg) ? "OK" : "FAIL");
+// impasto buttons rendered + swirling Van Gogh sky present
+const impasto = await page.locator(".impasto").count();
+const sky = await page.locator(".vg-sky").count();
+console.log("impasto buttons on home:", impasto, impasto > 0 ? "OK" : "FAIL");
+console.log("vg-sky present:", sky === 1 ? "OK" : "FAIL");
 await page.screenshot({ path: `${out}/home.png`, fullPage: true });
+
+// light theme (Sunflowers) via toggle
+await page.evaluate(() => document.documentElement.setAttribute("data-theme", "light"));
+await page.waitForTimeout(200);
+await page.screenshot({ path: `${out}/home-light.png`, fullPage: true });
+await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
 
 // F19 exit button appears off-home, returns home from a menu phase (no confirm)
 await page.getByText("เริ่มเล่น").click();
@@ -22,17 +28,18 @@ await exit.click();
 await page.waitForTimeout(400);
 console.log("exit -> home:", (await page.getByText("เริ่มเล่น").isVisible()) ? "OK" : "FAIL");
 
-// F18.5 high-contrast flattens paint (filter none) + drops paper texture
+// high-contrast: sky hidden + impasto flattened (no box-shadow)
 const hc = await page.evaluate(() => {
   document.documentElement.setAttribute("data-high-contrast", "");
-  const fill = document.querySelector(".paint-fill");
+  const skyEl = document.querySelector(".vg-sky");
+  const btn = document.querySelector(".impasto");
   return {
-    filter: fill ? getComputedStyle(fill).filter : "none",
-    body: getComputedStyle(document.body).backgroundImage,
+    skyHidden: skyEl ? getComputedStyle(skyEl).display : "none",
+    shadow: btn ? getComputedStyle(btn).boxShadow : "none",
   };
 });
-console.log("high-contrast paint filter none:", hc.filter === "none" ? "OK" : `FAIL(${hc.filter})`);
-console.log("high-contrast paper off:", hc.body === "none" ? "OK" : `FAIL(${hc.body})`);
+console.log("high-contrast sky hidden:", hc.skyHidden === "none" ? "OK" : `FAIL(${hc.skyHidden})`);
+console.log("high-contrast impasto flat:", hc.shadow === "none" ? "OK" : `FAIL(${hc.shadow})`);
 await page.screenshot({ path: `${out}/home-highcontrast.png`, fullPage: true });
 
 await b.close();
