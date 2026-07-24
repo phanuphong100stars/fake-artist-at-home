@@ -70,7 +70,7 @@ export function DrawScreen() {
             const p = players.find((pl) => pl.id === id)!;
             return (
               <span
-                key={id}
+                key={i}
                 className="h-1.5 flex-1 rounded-full"
                 style={{ backgroundColor: i <= drawIndex ? colorVar(p.color) : "var(--border-strong)", opacity: i < drawIndex ? 0.5 : 1 }}
               />
