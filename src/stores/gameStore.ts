@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Player, PlayerColor, Stroke, Votes } from "@/domain/types";
+import type { Player, PlayerColor, Stroke } from "@/domain/types";
 import { assignRoles, type RoleDeal } from "@/domain/role";
 import { drawOrder as makeDrawOrder } from "@/domain/turn";
 import { resolveWin } from "@/domain/scoring";
@@ -57,8 +57,7 @@ interface GameState {
   order: string[]; // draw turn order (player ids) — base order repeated `rounds` times
   revealIndex: number; // which player is currently viewing their role
   drawIndex: number; // whose turn it is to draw (index into order)
-  votes: Votes; // voterId -> suspectId (in-app voting)
-  voteIndex: number; // which player is currently casting their vote (index into players)
+  accusedId: string | null; // the single player the group voted as the faker
   strokes: Stroke[]; // all committed strokes
   startedAt: number; // Date.now() when game started (for play-time stat)
   winner: Winner | null; // human-declared outcome, for confetti + stats
@@ -77,7 +76,7 @@ interface GameState {
   startGame: () => void;
   nextReveal: () => void; // advance role-reveal pass sequence
   commitTurn: (strokes: Stroke[]) => void; // finish current draw turn
-  castVote: (suspectId: string) => void; // current voter picks a suspect; last vote tallies + records
+  accuse: (suspectId: string) => void; // group votes one suspect -> resolve + record
   declareWinner: (winner: Winner) => void; // human picks who won -> stats
   playAgain: () => void; // keep players, deal a new round
 }
@@ -99,8 +98,7 @@ export const useGame = create<GameState>()(
   order: [],
   revealIndex: 0,
   drawIndex: 0,
-  votes: {},
-  voteIndex: 0,
+  accusedId: null,
   strokes: [],
   startedAt: 0,
   winner: null,
@@ -125,8 +123,7 @@ export const useGame = create<GameState>()(
       order: makeDrawOrder(players, settings.rounds),
       revealIndex: 0,
       drawIndex: 0,
-      votes: {},
-      voteIndex: 0,
+      accusedId: null,
       strokes: [],
       startedAt: Date.now(),
       winner: null,
@@ -155,21 +152,15 @@ export const useGame = create<GameState>()(
     });
   },
 
-  castVote: (suspectId) => {
-    const { votes, voteIndex, players, deal } = get();
-    const voterId = players[voteIndex]?.id;
-    if (!voterId) return;
-    const nextVotes = { ...votes, [voterId]: suspectId };
-    const next = voteIndex + 1;
-    if (next >= players.length) {
-      // everyone voted — tally and record (guess phase deferred => fakerGuessCorrect=false)
-      const mode = useSettings.getState().fakerWinMode;
-      const result = resolveWin(deal!.fakerIds, nextVotes, mode, deal!.realWord, false);
-      set({ votes: nextVotes, voteIndex: next, phase: "reveal" });
-      get().declareWinner(result.winners); // sets winner + stats + history record
-    } else {
-      set({ votes: nextVotes, voteIndex: next });
-    }
+  accuse: (suspectId) => {
+    const { deal } = get();
+    if (!deal) return;
+    // group makes one collective accusation; treat it as the single top-voted suspect.
+    // guess phase deferred => fakerGuessCorrect=false. mode still honored for multi-faker.
+    const mode = useSettings.getState().fakerWinMode;
+    const result = resolveWin(deal.fakerIds, { verdict: suspectId }, mode, deal.realWord, false);
+    set({ accusedId: suspectId, phase: "reveal" });
+    get().declareWinner(result.winners); // sets winner + stats + history record
   },
 
   declareWinner: (winner) => {
@@ -247,8 +238,7 @@ export const useGame = create<GameState>()(
         order: s.order,
         revealIndex: s.revealIndex,
         drawIndex: s.drawIndex,
-        votes: s.votes,
-        voteIndex: s.voteIndex,
+        accusedId: s.accusedId,
         strokes: s.strokes,
         startedAt: s.startedAt,
         winner: s.winner,

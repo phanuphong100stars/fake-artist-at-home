@@ -50,21 +50,16 @@ for (let t = 0; t < 6; t++) {
 }
 
 await page.waitForTimeout(500);
-console.log("vote handoff:", await page.getByText(/ส่งเครื่องให้/).isVisible().catch(() => false));
-await page.screenshot({ path: `${out}/vote-handoff.png` });
+console.log("vote screen:", await page.getByText("ใครคือตัวปลอม?").isVisible().catch(() => false));
+await page.screenshot({ path: `${out}/vote.png` });
 
-// cast 3 votes
-for (let v = 0; v < 3; v++) {
-  await page.getByText(/ฉันคือ/).click(); await page.waitForTimeout(300);
-  if (v === 0) console.log("vote grid:", await page.getByText("ใครคือตัวปลอม?").isVisible().catch(() => false));
-  await page.screenshot({ path: `${out}/vote-pick-${v}.png` });
-  // pick first suspect (a grid button with a player name)
-  const suspects = page.locator("button", { hasText: /ผู้เล่น/ });
-  await suspects.first().click(); await page.waitForTimeout(200);
-  await page.getByText("ยืนยันโหวต").click(); await page.waitForTimeout(400);
-}
+// group picks one suspect, then reveal
+await page.locator("button", { hasText: /ผู้เล่น/ }).first().click();
+await page.waitForTimeout(200);
+await page.getByRole("button", { name: /เฉลย/ }).click();
+await page.waitForTimeout(400);
 
 await page.waitForTimeout(1400);
-console.log("reveal tally:", await page.getByText("ผลโหวต").isVisible().catch(() => false));
+console.log("reveal accused:", await page.getByText("กลุ่มโหวตให้").isVisible().catch(() => false));
 await page.screenshot({ path: `${out}/reveal.png`, fullPage: true });
 await b.close();
