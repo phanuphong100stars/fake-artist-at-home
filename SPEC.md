@@ -141,6 +141,72 @@ setting `rounds: 1 | 2 | 3` (default `2` = กติกามาตรฐาน;
 
 ---
 
+## รอบใหม่ (2026-07-24): UI ฟีลศิลปิน (painterly reskin)
+
+ยกทั้งแอปให้ดู "ศิลปิน" สมชื่อเกม — ปุ่ม/พื้นหลัง/เส้นคั่น ดูเหมือนงานวาดสีจริง
+**ทิศทางยืนยันแล้ว**: reskin ผิวอย่างเดียว (ไม่แตะ layout/flow/domain/token) ·
+ปุ่ม = *painted swipe* (ปาดแปรงขอบหยาบ) · เทคนิค **zero-dep** inline SVG + CSS
+filter (`feTurbulence`/`feDisplacementMap`) · คงฟอนต์ไทยเดิม (ฟีลได้จาก brush accent)
+
+**หลักคุมความเสี่ยง**: painterly เป็นชั้น *หลัง/รอบ* เนื้อหา ไม่เคยอยู่ใต้ตัวอักษร
+จน contrast ตก; ทุก effect ต้อง *ลดระดับ* เมื่อ highContrast/reduceMotion; SSR-safe
+(seed filter คงที่ ห้าม `Math.random` ตอน render); **ไม่เพิ่ม dependency**.
+
+### F18.0 — Foundation: shared paint defs
+`PaintDefs` = `<svg>` ซ่อน (`<defs>`) mount ครั้งเดียวใน `app/layout.tsx`
+- [ ] filter `#paint-rough`: `feTurbulence` + `feDisplacementMap` → ขอบรูปทรงหยาบแบบปาดแปรง
+- [ ] filter `#paper`: noise texture สำหรับพื้นหลัง (opacity ต่ำ)
+- [ ] seed คงที่ → render เหมือนเดิมทุกครั้ง (SSR/replay-safe)
+
+### F18.1 — Buttons = painted swipe (ทุก variant)
+เพิ่ม painted skin ให้ `Button` ทั้ง primary/secondary/ghost/danger
+- [ ] สี layer อยู่*หลัง* label, ขอบหยาบผ่าน `#paint-rough`, สีดึงจาก token (brand/danger/surface) → dark ปรับตาม
+- [ ] ยังเป็นปุ่มชัด: focus ring เดิมเห็น, disabled ชัด, touch target ≥44px คงเดิม
+- [ ] ripple/haptic/sound เดิมไม่หาย
+
+### F18.2 — Backgrounds: paper/canvas texture ทุกจอ
+- [ ] texture ใส่ที่ `body` (globals.css) ครั้งเดียว = ครบทุกจอ, opacity ต่ำ ไม่ทำ contrast ตัวอักษรตก
+- [ ] painted accent blobs: `<PaintBlobs>` shared (home มีแล้ว → refactor) วางจอหลัก (+setup/reveal/vote)
+
+### F18.3 — Dividers / accents = hand-drawn brush swipe
+- [ ] extract brush-swipe ของ home เป็น `<BrushDivider>` ใช้คั่น section ในจอที่มี list/section (setup, settings, howto)
+
+### F18.4 — Cards / panels: painterly accent
+- [ ] การ์ด reveal/role, vote item, history item: ขอบ/มุม painterly หรือ paper fill
+- [ ] คงรูปทรงอ่านง่าย (ไม่ torn/wobbly จน a11y เสีย — นี่คือ strong reskin ไม่ใช่ full overhaul)
+
+### F18.5 — a11y degrade (บังคับ)
+- [ ] `:root[data-high-contrast]`: `filter:none` + fill ทึบ + border จริงชัด (ปุ่ม/การ์ดกลับ solid)
+- [ ] reduceMotion: ไม่มี draw-in ของ brush (gate ผ่าน `MotionConfig` เดิม)
+- [ ] colorblind / largeFont: ไม่กระทบ (palette pN + layout ไม่แตะ)
+
+### F18.6 — ไม่แตะ
+- [ ] `DrawCanvas` (พื้นที่วาดจริงของผู้เล่น) — คงสะอาด
+- [ ] domain, token `pN`, flow/phase, persisted schema — ไม่แตะ
+
+**Files**: `+components/common/PaintDefs.tsx` (mount ใน `app/layout.tsx`), `+PaintBlobs.tsx`,
+`+BrushDivider.tsx`; `Button.tsx`; `app/globals.css` (paper texture, painted base, high-contrast override);
+screens: `HomeScreen` (refactor เป็น shared), `PlayerSetupScreen`, `RoleRevealScreen`, `VoteScreen`,
+`SettingsScreen`, `HistoryScreen`, `HowToPlayScreen` (ใส่ accent ตามจอที่เหมาะ)
+
+**Testing**: visual playwright (`tests/visual/paint.mjs`) — home/setup/reveal/vote/settings โชว์ปุ่ม painted +
+พื้น texture; +รัน high-contrast ยืนยัน flatten (`filter:none`). `lint`+`test`+`build` เดิมผ่าน;
+`package.json` ไม่มี dep ใหม่. ponytail: 1 visual script ครอบจอที่แตะ ไม่เพิ่ม framework.
+
+**DoD**: ทุกจอมีปุ่ม painted + พื้น texture; high-contrast/reduceMotion flatten ถูก;
+ไม่มี dep ใหม่; lint+test+build ผ่าน; visual ผ่าน.
+
+### F19 — ปุ่ม "ออกจากเกม" (มุมบนขวา ทุกจอ → หน้าแรก)
+`<ExitButton>` fixed มุมบนขวา render ใน `GameShell` เมื่อ `phase !== "home"` (จุดเดียวคุมทุกจอ)
+- [ ] เห็นทุกจอ ยกเว้น `home` (home มีเฟือง settings อยู่แล้ว), เคารพ safe-area top/right, z เหนือเนื้อหา
+- [ ] กด → **ล้างเกมทิ้ง** (reset store) + `goTo("home")` → start ครั้งหน้าเริ่มสด (resume ไม่ค้าง)
+- [ ] จอที่มีเกม in-progress (`roleReveal`/`draw`/`vote`/`reveal`) → **ยืนยันก่อน** ("ออกจากเกม? เกมนี้จะถูกล้าง") กันกดพลาด; จอเมนู (setup/gameSetting/settings/customWords/history/howto/replay/statistics) ออกได้เลย
+- [ ] ไม่ทับ control มุมบนขวาเดิมของจอไหน (ถ้ามี ให้รวม/หลบ)
+- [ ] painted skin เดียวกับ F18, ทำงานร่วม back-button (F12) ไม่พัง history stack
+- [ ] landscape `DrawScreen` ปุ่มยังอยู่มุมบนขวาถูกตำแหน่ง
+
+---
+
 ## 3. Commands
 
 ```bash

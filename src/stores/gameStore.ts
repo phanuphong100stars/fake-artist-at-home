@@ -64,6 +64,7 @@ interface GameState {
   replayRecord: GameRecord | null; // a past game to replay (null = current game)
 
   goTo: (phase: Phase) => void;
+  exitToHome: () => void; // wipe the in-progress game and return to home
   viewReplay: (rec: GameRecord | null) => void; // open replay for a record (or current)
   addPlayer: () => void;
   removePlayer: (id: string) => void;
@@ -105,6 +106,19 @@ export const useGame = create<GameState>()(
   replayRecord: null,
 
   goTo: (phase) => set({ phase }),
+  exitToHome: () =>
+    set({
+      phase: "home",
+      deal: null,
+      order: [],
+      revealIndex: 0,
+      drawIndex: 0,
+      accusedId: null,
+      strokes: [],
+      startedAt: 0,
+      winner: null,
+      replayRecord: null,
+    }),
   viewReplay: (rec) => set({ replayRecord: rec, phase: "replay" }),
 
   startGame: () => {

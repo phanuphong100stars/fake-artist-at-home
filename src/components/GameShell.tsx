@@ -18,6 +18,7 @@ import { HistoryScreen } from "@/components/screens/HistoryScreen";
 import { SettingsScreen } from "@/components/screens/SettingsScreen";
 import { CustomWordsScreen } from "@/components/screens/CustomWordsScreen";
 import { HowToPlayScreen } from "@/components/screens/HowToPlayScreen";
+import { ExitButton } from "@/components/common/ExitButton";
 import { useGame } from "@/stores/gameStore";
 
 export function GameShell() {
@@ -76,6 +77,7 @@ export function GameShell() {
   return (
     <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
       <ThemeApplier />
+      <ExitButton />
       <AnimatePresence mode="wait">
         <motion.div key={phase} {...pageTransition}>
           {phase === "home" && (
