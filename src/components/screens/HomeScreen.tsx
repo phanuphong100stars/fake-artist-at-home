@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Settings, Play, HelpCircle, Clock } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { AppLogo } from "@/components/common/AppLogo";
+import { PaintBlobs } from "@/components/common/PaintBlobs";
 
 interface HomeScreenProps {
   onStart: () => void;
@@ -15,15 +16,7 @@ interface HomeScreenProps {
 export function HomeScreen({ onStart, onHowTo, onSettings, onHistory }: HomeScreenProps) {
   return (
     <main className="relative flex min-h-dvh flex-col items-center overflow-hidden px-6">
-      {/* ambient paint glow */}
-      <motion.div
-        aria-hidden
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.5, scale: 1 }}
-        transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
-        className="pointer-events-none absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-brand blur-[120px]"
-        style={{ opacity: 0.18 }}
-      />
+      <PaintBlobs />
 
       {/* settings */}
       <div className="z-10 flex w-full max-w-md justify-end pt-[max(1rem,env(safe-area-inset-top))]">

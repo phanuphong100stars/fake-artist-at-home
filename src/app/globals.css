@@ -166,7 +166,11 @@ html {
 }
 body {
   min-height: 100%;
-  background: var(--background);
+  /* canvas/paper tooth — desaturated noise blended gently into the bg so it
+     reads as texture on both light & dark (soft-light of ~mid-grey ≈ subtle). */
+  background-color: var(--background);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-blend-mode: soft-light;
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -190,6 +194,19 @@ input, textarea, [contenteditable] {
 /* prevent iOS double-tap zoom on interactive game UI */
 button, [role="button"], .no-select {
   touch-action: manipulation;
+}
+
+/* painted brush-swipe edge — warps a solid shape via the shared SVG filter */
+.paint-fill {
+  filter: url(#paint-rough);
+}
+
+/* high-contrast: drop the painterly texture/roughness for crisp, solid UI */
+:root[data-high-contrast] body {
+  background-image: none;
+}
+:root[data-high-contrast] .paint-fill {
+  filter: none;
 }
 
 /* accessible focus ring */

@@ -9,12 +9,21 @@ import { play } from "@/lib/sound";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg";
 
+// button-level classes (text + depth); the fill+color moves to a filtered
+// paint layer so the shape reads as a hand-painted brush swipe.
 const variants: Record<Variant, string> = {
-  primary: "bg-brand text-brand-fg shadow-card hover:brightness-105 active:brightness-95",
-  secondary:
-    "bg-surface text-foreground border border-border-strong hover:bg-elevated shadow-card",
+  primary: "text-brand-fg shadow-card",
+  secondary: "text-foreground shadow-card",
   ghost: "text-foreground hover:bg-elevated",
-  danger: "bg-danger text-white hover:brightness-105 active:brightness-95",
+  danger: "text-white",
+};
+
+// the painted layer per variant (null = no fill, e.g. ghost stays plain)
+const fills: Record<Variant, string | null> = {
+  primary: "bg-brand",
+  secondary: "bg-surface border border-border-strong",
+  ghost: null,
+  danger: "bg-danger",
 };
 
 const sizes: Record<Size, string> = {
@@ -59,14 +68,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           onClick?.(e);
         }}
         className={cn(
-          "relative inline-flex items-center justify-center gap-2 overflow-hidden font-semibold no-select",
-          "transition-[filter,background-color] disabled:pointer-events-none disabled:opacity-50",
+          "group relative inline-flex items-center justify-center overflow-hidden font-semibold no-select",
+          "transition-transform disabled:pointer-events-none disabled:opacity-50",
           variants[variant],
           sizes[size],
           className,
         )}
         {...props}
       >
+        {fills[variant] && (
+          <span
+            aria-hidden
+            className={cn(
+              // inset < displacement so the warped edge never hits the clip box
+              "paint-fill pointer-events-none absolute inset-[6px] rounded-[inherit]",
+              fills[variant]!,
+            )}
+          />
+        )}
         <AnimatePresence>
           {ripples.map((r) => (
             <motion.span
@@ -81,7 +100,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             />
           ))}
         </AnimatePresence>
-        {children as React.ReactNode}
+        <span className="relative z-10 inline-flex items-center justify-center gap-2">
+          {children as React.ReactNode}
+        </span>
       </motion.button>
     );
   },

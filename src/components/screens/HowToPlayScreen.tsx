@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X, Palette, Brush, VenetianMask, ArrowRight, Play } from "lucide-react";
 import { Button } from "@/components/common/Button";
+import { BrushDivider } from "@/components/common/BrushDivider";
 
 const STEPS = [
   {
@@ -52,6 +53,7 @@ export function HowToPlayScreen({ onClose, onStart }: { onClose: () => void; onS
             </div>
             <p className="mb-2 text-sm font-bold text-brand">ขั้นที่ {i + 1}</p>
             <h1 className="text-2xl font-extrabold">{step.title}</h1>
+            <BrushDivider className="mt-2 h-3 w-40 text-brand" />
             <p className="mt-3 max-w-sm text-balance text-muted">{step.body}</p>
           </motion.div>
         </AnimatePresence>

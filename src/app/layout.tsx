@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { PWARegister } from "@/components/PWARegister";
+import { PaintDefs } from "@/components/common/PaintDefs";
 
 const notoThai = Noto_Sans_Thai({
   variable: "--font-thai",
@@ -36,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="th" suppressHydrationWarning className={`${notoThai.variable} h-full`}>
       <body className="min-h-full antialiased">
+        <PaintDefs />
         {children}
         <PWARegister />
       </body>
