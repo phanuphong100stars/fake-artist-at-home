@@ -1,7 +1,7 @@
 // ponytail: runtime cache-first, not a precache manifest. Next's static chunks
 // are hashed + immutable, so cache-first is ideal; everything used on the first
 // visit is available offline on the next. Bump CACHE to invalidate.
-const CACHE = "fake-artist-v1";
+const CACHE = "fake-artist-v2";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
