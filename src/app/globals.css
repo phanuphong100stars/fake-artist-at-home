@@ -174,12 +174,21 @@ body {
   /* fill safe areas on notched devices */
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
            env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-/* prevent iOS double-tap zoom / text selection on interactive game UI */
-button, [role="button"], .no-select {
+  /* no long-press select/copy callout anywhere (it's a game, not a document) */
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* but real text fields must stay selectable/editable */
+input, textarea, [contenteditable] {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* prevent iOS double-tap zoom on interactive game UI */
+button, [role="button"], .no-select {
   touch-action: manipulation;
 }
 
